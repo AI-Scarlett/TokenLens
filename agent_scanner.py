@@ -275,6 +275,63 @@ def _extract_models_from_kimi() -> List[Dict]:
     return models
 
 
+def _extract_models_from_trae() -> List[Dict]:
+    models = []
+    db_path = HOME / "Library" / "Application Support" / "Trae CN" / "User" / "globalStorage" / "state.vscdb"
+    if not db_path.exists():
+        db_path = HOME / "Library" / "Application Support" / "Trae" / "User" / "globalStorage" / "state.vscdb"
+    if not db_path.exists():
+        return models
+    try:
+        import sqlite3 as _sqlite
+        conn = _sqlite.connect(str(db_path))
+        row = conn.execute(
+            "SELECT value FROM ItemTable WHERE key LIKE '%AI.agent.model.model_list_map%' LIMIT 1"
+        ).fetchone()
+        if not row:
+            conn.close()
+            return models
+        val = row[0]
+        if isinstance(val, bytes):
+            val = val.decode("utf-8", errors="replace")
+        data = json.loads(val)
+        conn.close()
+
+        seen = set()
+        for mode, model_list in data.items():
+            if not isinstance(model_list, list):
+                continue
+            for m in model_list:
+                if not isinstance(m, dict):
+                    continue
+                mid = m.get("name", "")
+                if not mid or mid in seen:
+                    continue
+                seen.add(mid)
+                ctx = m.get("context_window_size", {})
+                max_tokens = 4096
+                if isinstance(ctx, dict):
+                    d = ctx.get("default")
+                    if isinstance(d, (int, float)):
+                        max_tokens = int(d)
+                    elif isinstance(d, list) and d:
+                        max_tokens = int(d[0])
+                elif isinstance(ctx, (int, float)):
+                    max_tokens = int(ctx)
+                models.append({
+                    "id": mid,
+                    "vendor": "trae",
+                    "vendor_display": "Trae",
+                    "source": "trae",
+                    "base_url": "",
+                    "is_default": bool(m.get("is_default", False)),
+                    "max_tokens": max_tokens,
+                })
+    except Exception:
+        pass
+    return models
+
+
 def _extract_models_from_evomorph() -> List[Dict]:
     models = []
     config = _load_json_safe(HOME / ".evomorph" / "config.json")
@@ -353,6 +410,11 @@ BUILTIN_SCANNERS = {
         "name": "Cline", "description": "Cline VS Code Extension", "icon": "🔌",
         "extract": _extract_models_from_cline,
         "check": lambda: (HOME / "Library" / "Application Support" / "Code" / "User" / "globalStorage" / "saoudrizwan.claude-dev" / "cache" / "hicap_models.json").exists(),
+    },
+    "trae": {
+        "name": "Trae", "description": "Trae / Trae CN AI IDE (字节跳动)", "icon": "🚀",
+        "extract": _extract_models_from_trae,
+        "check": lambda: (HOME / "Library" / "Application Support" / "Trae CN" / "User" / "globalStorage" / "state.vscdb").exists() or (HOME / "Library" / "Application Support" / "Trae" / "User" / "globalStorage" / "state.vscdb").exists(),
     },
 }
 
@@ -514,7 +576,7 @@ def _extract_models_from_generic() -> List[Dict]:
 
     known_agent_dirs = {
         ".claude", ".codex", ".codebuddy", ".qwen", ".hermes",
-        ".qclaw", ".kimi", ".evomorph", ".lmstudio",
+        ".qclaw", ".kimi", ".evomorph", ".lmstudio", ".trae-cn", ".trae",
     }
 
     scan_dirs = []
@@ -528,7 +590,7 @@ def _extract_models_from_generic() -> List[Dict]:
         if mac_support.exists():
             for entry in mac_support.iterdir():
                 if entry.is_dir() and entry.name not in IGNORE_DIRS:
-                    if entry.name.lower() not in ("claude", "codebuddy", "cursor"):
+                    if entry.name.lower() not in ("claude", "codebuddy", "cursor", "trae cn", "trae"):
                         scan_dirs.append(entry)
         linux_config = HOME / ".config"
         if linux_config.exists():
