@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Token Counter</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --bg: #06080f;
+  --bg2: #0a0e1a;
+  --surface: #0f1320;
+  --surface2: #151a2e;
+  --surface3: #1c2240;
+  --surface4: #242b4a;
+  --border: rgba(255,255,255,.06);
+  --border2: rgba(255,255,255,.1);
+  --text: #f0f2fa;
+  --text2: #8890b0;
+  --text3: #4a5178;
+  --primary: #6366f1;
+  --primary2: #818cf8;
+  --primary3: #a5b4fc;
+  --primary-glow: rgba(99,102,241,.25);
+  --green: #10b981;
+  --green2: #34d399;
+  --green-glow: rgba(16,185,129,.2);
+  --red: #ef4444;
+  --red2: #f87171;
+  --orange: #f59e0b;
+  --orange2: #fbbf24;
+  --blue: #3b82f6;
+  --blue2: #60a5fa;
+  --cyan: #06b6d4;
+  --cyan2: #22d3ee;
+  --pink: #ec4899;
+  --pink2: #f472b6;
+  --purple: #a855f7;
+  --purple2: #c084fc;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: 'JetBrains Mono', 'SF Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 14px; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; overflow: hidden; }
+
+.layout { display: flex; height: 100vh; }
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 240px; background: var(--bg2); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; flex-shrink: 0; position: relative; z-index: 10;
+}
+.sidebar::after {
+  content: ''; position: absolute; top: 0; right: 0; width: 1px; height: 100%;
+  background: linear-gradient(180deg, var(--primary-glow), transparent 40%, transparent 60%, var(--primary-glow));
+}
+.sidebar-logo {
+  padding: 28px 24px 32px; display: flex; align-items: center; gap: 14px;
+}
+.sidebar-logo-icon {
+  width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--primary), var(--purple));
+  box-shadow: 0 4px 16px var(--primary-glow);
+  font-size: 18px; position: relative;
+}
+.sidebar-logo-icon::after {
+  content: ''; position: absolute; inset: -1px; border-radius: 13px;
+  background: linear-gradient(135deg, rgba(255,255,255,.2), transparent);
+  z-index: 1; pointer-events: none;
+}
+.sidebar-logo-text { font-size: 15px; font-weight: 800; letter-spacing: 1.5px; color: var(--text); }
+.sidebar-logo-ver { font-size: 10px; color: var(--text3); font-weight: 500; margin-top: 2px; letter-spacing: 0; }
+
+.sidebar nav { flex: 1; padding: 0 12px; }
+.sidebar nav a {
+  display: flex; align-items: center; gap: 12px; padding: 11px 16px; margin-bottom: 2px;
+  color: var(--text2); font-size: 13px; font-weight: 500; border-radius: var(--radius-sm);
+  cursor: pointer; transition: all .2s ease; position: relative;
+}
+.sidebar nav a .nav-icon {
+  width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  font-size: 15px; background: transparent; transition: all .2s ease;
+}
+.sidebar nav a:hover { color: var(--text); background: rgba(255,255,255,.03); }
+.sidebar nav a:hover .nav-icon { background: rgba(255,255,255,.06); }
+.sidebar nav a.active {
+  color: var(--primary3); background: rgba(99,102,241,.08);
+}
+.sidebar nav a.active .nav-icon { background: rgba(99,102,241,.15); }
+.sidebar nav a.active::before {
+  content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 20px; border-radius: 0 3px 3px 0;
+  background: linear-gradient(180deg, var(--primary), var(--purple));
+}
+
+.sidebar-footer {
+  padding: 20px 24px; border-top: 1px solid var(--border);
+  font-size: 11px; color: var(--text3);
+}
+
+/* ── Main ── */
+.main {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99,102,241,.08), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(6,182,212,.05), transparent);
+}
+.main-inner { padding: 32px 40px; max-width: 1400px; }
+.page { display: none; animation: fadeIn .3s ease; }
+.page.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── Page Header ── */
+.page-header { margin-bottom: 28px; }
+.page-header h1 { font-size: 28px; font-weight: 800; letter-spacing: -.5px; line-height: 1.2; }
+.page-header .subtitle { font-size: 14px; color: var(--text2); margin-top: 4px; font-weight: 400; }
+
+/* ── Stat Cards ── */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 22px 24px; position: relative; overflow: hidden;
+  transition: all .25s ease; cursor: default;
+}
+.stat-card:hover { border-color: var(--border2); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,.3); }
+.stat-card .sc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.stat-card .sc-icon {
+  width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; position: relative;
+}
+.stat-card .sc-icon::after {
+  content: ''; position: absolute; inset: 0; border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255,255,255,.1), transparent);
+}
+.sc-icon-primary { background: rgba(99,102,241,.12); color: var(--primary2); }
+.sc-icon-cyan { background: rgba(6,182,212,.12); color: var(--cyan2); }
+.sc-icon-green { background: rgba(16,185,129,.12); color: var(--green2); }
+.sc-icon-blue { background: rgba(59,130,246,.12); color: var(--blue2); }
+.sc-icon-orange { background: rgba(245,158,11,.12); color: var(--orange2); }
+.sc-icon-pink { background: rgba(236,72,153,.12); color: var(--pink2); }
+.stat-card .sc-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+.stat-card .sc-value { font-size: 30px; font-weight: 900; letter-spacing: -1px; line-height: 1; font-variant-numeric: tabular-nums; }
+.stat-card .sc-glow {
+  position: absolute; width: 120px; height: 120px; border-radius: 50%;
+  filter: blur(50px); opacity: .08; pointer-events: none;
+}
+.glow-primary { background: var(--primary); top: -40px; right: -40px; }
+.glow-cyan { background: var(--cyan); top: -40px; right: -40px; }
+.glow-green { background: var(--green); top: -40px; right: -40px; }
+.glow-blue { background: var(--blue); top: -40px; right: -40px; }
+.glow-orange { background: var(--orange); top: -40px; right: -40px; }
+.glow-pink { background: var(--pink); top: -40px; right: -40px; }
+
+/* ── Panel ── */
+.panel {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  overflow: hidden; margin-bottom: 20px;
+}
+.panel-header {
+  padding: 18px 24px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.panel-header h3 { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.panel-header h3 .ph-icon { font-size: 16px; }
+.panel-body { padding: 0; }
+.panel-body.padded { padding: 24px; }
+
+/* ── Table ── */
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { padding: 14px 20px; text-align: left; }
+th {
+  color: var(--text3); font-weight: 600; font-size: 11px; text-transform: uppercase;
+  letter-spacing: .8px; background: rgba(255,255,255,.02);
+  border-bottom: 1px solid var(--border);
+}
+td { border-bottom: 1px solid var(--border); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(99,102,241,.03); }
+.table-bar { height: 5px; border-radius: 3px; background: var(--surface3); margin-top: 5px; overflow: hidden; }
+.table-bar-fill { height: 100%; border-radius: 3px; transition: width .6s cubic-bezier(.4,0,.2,1); }
+
+/* ── Charts ── */
+.charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+.donut-wrap { display: flex; align-items: center; gap: 24px; padding: 24px; }
+.donut-svg { flex-shrink: 0; }
+.donut-legend { flex: 1; }
+.donut-legend-item { display: flex; align-items: center; gap: 10px; padding: 6px 0; font-size: 13px; }
+.donut-legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.donut-legend-name { flex: 1; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.donut-legend-val { font-weight: 700; font-variant-numeric: tabular-nums; min-width: 60px; text-align: right; }
+.donut-legend-pct { color: var(--text3); font-size: 12px; min-width: 40px; text-align: right; }
+
+/* ── Badges ── */
+.badge {
+  display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 6px;
+  font-size: 11px; font-weight: 600; gap: 4px; letter-spacing: .3px;
+}
+.badge-china { background: rgba(239,68,68,.1); color: var(--red2); }
+.badge-international { background: rgba(59,130,246,.1); color: var(--blue2); }
+.badge-custom { background: rgba(245,158,11,.1); color: var(--orange2); }
+.badge-token_pack { background: rgba(99,102,241,.1); color: var(--primary2); }
+.badge-token_plan { background: rgba(236,72,153,.1); color: var(--pink2); }
+.badge-coding_plan { background: rgba(16,185,129,.1); color: var(--green2); }
+.badge-discount_plan { background: rgba(245,158,11,.1); color: var(--orange2); }
+.badge-free_tier { background: rgba(6,182,212,.1); color: var(--cyan2); }
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px;
+  border-radius: var(--radius-sm); border: none; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all .2s ease; font-family: var(--font);
+}
+.btn-primary { background: var(--primary); color: #fff; box-shadow: 0 2px 8px var(--primary-glow); }
+.btn-primary:hover { background: var(--primary2); box-shadow: 0 4px 16px var(--primary-glow); transform: translateY(-1px); }
+.btn-danger { background: rgba(239,68,68,.15); color: var(--red2); }
+.btn-danger:hover { background: rgba(239,68,68,.25); }
+.btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border); }
+.btn-ghost:hover { color: var(--text); border-color: var(--border2); background: rgba(255,255,255,.03); }
+.btn-sm { padding: 6px 14px; font-size: 12px; }
+
+/* ── Forms ── */
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 8px; font-weight: 600; letter-spacing: .3px; }
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%; padding: 10px 16px; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text); font-size: 13px; outline: none;
+  transition: all .2s ease; font-family: var(--font);
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow);
+}
+.form-row { display: flex; gap: 14px; }
+.form-row .form-group { flex: 1; }
+
+/* ── Modal ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 100;
+  align-items: center; justify-content: center; backdrop-filter: blur(8px);
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius);
+  padding: 32px; width: 520px; max-height: 80vh; overflow-y: auto;
+  box-shadow: 0 24px 64px rgba(0,0,0,.5);
+}
+.modal h3 { margin-bottom: 24px; font-size: 18px; font-weight: 700; }
+.modal .actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 28px; }
+
+/* ── Token Counter Tool ── */
+.token-counter-tool {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 28px; margin-bottom: 24px;
+}
+.token-counter-tool textarea { width: 100%; min-height: 80px; resize: vertical; }
+.token-result {
+  margin-top: 16px; padding: 20px; background: var(--surface2);
+  border-radius: var(--radius-sm); border: 1px solid var(--border);
+}
+.token-result .num {
+  font-size: 36px; font-weight: 900;
+  background: linear-gradient(135deg, var(--primary2), var(--cyan2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+/* ── Tab Bar ── */
+.tab-bar { display: flex; gap: 4px; margin-bottom: 24px; background: var(--surface); border-radius: var(--radius-sm); padding: 4px; border: 1px solid var(--border); }
+.tab-bar button {
+  padding: 8px 18px; background: none; border: none; color: var(--text2); font-size: 12px;
+  font-weight: 600; cursor: pointer; border-radius: var(--radius-xs); transition: all .2s ease;
+  font-family: var(--font);
+}
+.tab-bar button:hover { color: var(--text); background: rgba(255,255,255,.03); }
+.tab-bar button.active { color: #fff; background: var(--primary); box-shadow: 0 2px 8px var(--primary-glow); }
+
+/* ── Time Filter ── */
+.time-filter { display: flex; gap: 6px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; }
+.time-filter button {
+  padding: 7px 18px; border-radius: 20px; border: 1px solid var(--border);
+  background: transparent; color: var(--text2); font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all .2s ease; font-family: var(--font);
+}
+.time-filter button:hover { border-color: var(--primary); color: var(--primary2); }
+.time-filter button.active {
+  background: var(--primary); color: #fff; border-color: var(--primary);
+  box-shadow: 0 2px 12px var(--primary-glow);
+}
+.time-filter input[type="date"] {
+  padding: 7px 14px; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 20px; color: var(--text); font-size: 12px; font-family: var(--font);
+}
+.time-filter .sep { color: var(--text3); font-size: 12px; }
+
+/* ── Toggle ── */
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-switch .slider {
+  position: absolute; cursor: pointer; inset: 0; background: var(--surface3);
+  border-radius: 22px; transition: .25s ease; border: 1px solid var(--border);
+}
+.toggle-switch .slider:before {
+  content: ""; position: absolute; height: 16px; width: 16px; left: 2px; bottom: 2px;
+  background: var(--text3); border-radius: 50%; transition: .25s ease;
+}
+.toggle-switch input:checked + .slider { background: var(--green); border-color: var(--green); box-shadow: 0 0 12px var(--green-glow); }
+.toggle-switch input:checked + .slider:before { transform: translateX(18px); background: #fff; }
+
+/* ── Toolbar ── */
+.toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 12px; flex-wrap: wrap; }
+.toolbar-right { display: flex; gap: 8px; align-items: center; }
+
+/* ── Cost ── */
+.cost-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-bottom: 20px; }
+.cost-card {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 20px; position: relative; overflow: hidden;
+}
+.cost-card .cost-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; font-weight: 600; }
+.cost-card .cost-value { font-size: 26px; font-weight: 800; margin-top: 6px; letter-spacing: -.5px; }
+.cost-card .cost-cur { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.cost-card::after {
+  content: ''; position: absolute; top: -20px; right: -20px; width: 60px; height: 60px;
+  border-radius: 50%; background: var(--primary); filter: blur(30px); opacity: .06;
+}
+
+/* ── URL Tag ── */
+.url-tag {
+  display: inline-block; font-size: 11px; font-family: var(--mono);
+  background: var(--surface3); padding: 3px 8px; border-radius: 4px;
+  color: var(--text2); word-break: break-all; margin: 1px 0;
+}
+
+/* ── Empty ── */
+.empty { text-align: center; padding: 48px; color: var(--text3); font-size: 14px; }
+
+/* ── Plan Card ── */
+.plan-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 24px; margin-bottom: 12px; transition: all .2s ease; position: relative; overflow: hidden;
+}
+.plan-card:hover { border-color: var(--border2); }
+.plan-card::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%;
+  background: linear-gradient(180deg, var(--primary), var(--purple)); border-radius: 0 3px 3px 0;
+}
+.plan-card .plan-header { display: flex; justify-content: space-between; align-items: center; }
+.plan-card .plan-name { font-size: 15px; font-weight: 700; }
+.plan-card .plan-price {
+  font-size: 22px; font-weight: 900;
+  background: linear-gradient(135deg, var(--primary2), var(--cyan2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.plan-card .plan-price .plan-discount { font-size: 12px; -webkit-text-fill-color: var(--orange2); }
+.plan-card .plan-desc { margin-top: 10px; font-size: 13px; color: var(--text2); line-height: 1.5; }
+.plan-card .plan-meta { margin-top: 10px; font-size: 12px; color: var(--text3); }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface4); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+/* ── Checkbox ── */
+.cb-label { font-size: 12px; color: var(--text2); display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.cb-label input[type="checkbox"] { accent-color: var(--primary); width: 14px; height: 14px; }
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+  .charts-row { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">⚡</div>
+      <div>
+        <div class="sidebar-logo-text">TOKEN</div>
+        <div class="sidebar-logo-ver">Counter v1.0</div>
+      </div>
+    </div>
+    <nav>
+      <a class="active" data-page="dashboard">
+        <span class="nav-icon">📊</span> 仪表盘
+      </a>
+      <a data-page="vendors">
+        <span class="nav-icon">🏢</span> 厂商管理
+      </a>
+      <a data-page="models">
+        <span class="nav-icon">🤖</span> 模型管理
+      </a>
+      <a data-page="plans">
+        <span class="nav-icon">📦</span> 套餐计划
+      </a>
+      <a data-page="counter">
+        <span class="nav-icon">🔢</span> Token计算
+      </a>
+      <a data-page="records">
+        <span class="nav-icon">📋</span> 调用记录
+      </a>
+      <a data-page="agents">
+        <span class="nav-icon">🔗</span> Agent导入
+      </a>
+    </nav>
+    <div class="sidebar-footer">本地Token统计 · 无需API</div>
+  </aside>
+
+  <div class="main">
+    <div class="main-inner">
+
+      <!-- Dashboard -->
+      <div id="page-dashboard" class="page active">
+        <div class="toolbar">
+          <div class="page-header">
+            <h1>仪表盘</h1>
+            <div class="subtitle">Token消耗统计与费用估算</div>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn btn-primary btn-sm" onclick="quickScanAgents()" id="btn-scan-agents">🔗 扫描本机Agent</button>
+            <label class="cb-label">
+              <input type="checkbox" id="dash-enabled-only" onchange="loadDashboard()"> 仅统计已启用
+            </label>
+          </div>
+        </div>
+        <div class="time-filter" id="dash-time-filter">
+          <button class="active" onclick="setTimePeriod(this,'')">全部</button>
+          <button onclick="setTimePeriod(this,'today')">今日</button>
+          <button onclick="setTimePeriod(this,'7d')">7天</button>
+          <button onclick="setTimePeriod(this,'30d')">30天</button>
+          <button onclick="setTimePeriod(this,'90d')">90天</button>
+          <input type="date" id="dash-from" onchange="setCustomTime()"> <span class="sep">~</span> <input type="date" id="dash-to" onchange="setCustomTime()">
+          <span class="sep">|</span>
+          <span style="font-size:12px;color:var(--text3);font-weight:600">Agent</span>
+          <select id="dash-agent-filter" onchange="loadDashboard()" style="padding:7px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;color:var(--text);font-size:12px;font-family:var(--font);min-width:130px">
+            <option value="">全部</option>
+          </select>
+        </div>
+        <div class="stat-grid" id="summary-cards"></div>
+
+        <div class="charts-row">
+          <div class="panel">
+            <div class="panel-header"><h3><span class="ph-icon">🍩</span> 模型Token分布</h3></div>
+            <div class="panel-body">
+              <div class="donut-wrap" id="model-donut"></div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header"><h3><span class="ph-icon">🍩</span> 厂商Token分布</h3></div>
+            <div class="panel-body">
+              <div class="donut-wrap" id="vendor-donut"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="charts-row">
+          <div class="panel">
+            <div class="panel-header"><h3><span class="ph-icon">📊</span> 按模型统计</h3></div>
+            <div class="panel-body">
+              <table id="stats-model-table"><thead><tr><th>模型</th><th>调用</th><th>输入</th><th>输出</th><th>总计</th><th>占比</th></tr></thead><tbody></tbody></table>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header"><h3><span class="ph-icon">🏢</span> 按厂商统计</h3></div>
+            <div class="panel-body">
+              <table id="stats-vendor-table"><thead><tr><th>厂商</th><th>调用</th><th>总Token</th><th>占比</th></tr></thead><tbody></tbody></table>
+            </div>
+          </div>
+        </div>
+
+        <div class="charts-row">
+          <div class="panel">
+            <div class="panel-header"><h3><span class="ph-icon">🍩</span> 按Agent统计</h3></div>
+            <div class="panel-body">
+              <div class="donut-wrap" id="agent-donut"></div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header"><h3><span class="ph-icon">🔗</span> Agent调用详情</h3></div>
+            <div class="panel-body">
+              <table id="stats-agent-table"><thead><tr><th>Agent</th><th>调用</th><th>输入</th><th>输出</th><th>总计</th><th>占比</th></tr></thead><tbody></tbody></table>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><h3><span class="ph-icon">💰</span> 费用估算</h3></div>
+          <div class="panel-body padded" id="cost-section"></div>
+        </div>
+      </div>
+
+      <!-- Vendors -->
+      <div id="page-vendors" class="page">
+        <div class="toolbar">
+          <div class="page-header"><h1>厂商管理</h1></div>
+          <div class="toolbar-right">
+            <button class="btn btn-ghost btn-sm" onclick="toggleAllVendors(true)">全部启用</button>
+            <button class="btn btn-ghost btn-sm" onclick="toggleAllVendors(false)">全部禁用</button>
+            <button class="btn btn-primary btn-sm" onclick="showVendorModal()">+ 添加厂商</button>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <button class="active" onclick="filterVendors(this,'')">全部</button>
+          <button onclick="filterVendors(this,'china')">国内</button>
+          <button onclick="filterVendors(this,'international')">国际</button>
+        </div>
+        <div class="panel"><div class="panel-body">
+          <table id="vendors-table"><thead><tr><th>启用</th><th>ID</th><th>名称</th><th>区域</th><th>Base URL</th><th>API兼容</th><th>认证</th><th>模型</th><th>币种</th><th>操作</th></tr></thead><tbody></tbody></table>
+        </div></div>
+      </div>
+
+      <!-- Models -->
+      <div id="page-models" class="page">
+        <div class="toolbar">
+          <div class="page-header"><h1>模型管理</h1></div>
+          <div class="toolbar-right">
+            <button class="btn btn-ghost btn-sm" onclick="toggleAllModels(true)">全部启用</button>
+            <button class="btn btn-ghost btn-sm" onclick="toggleAllModels(false)">全部禁用</button>
+            <button class="btn btn-primary btn-sm" onclick="showModelModal()">+ 添加模型</button>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <button class="active" onclick="filterModels(this,'')">全部</button>
+          <button onclick="filterModels(this,'china')">国内</button>
+          <button onclick="filterModels(this,'international')">国际</button>
+        </div>
+        <div class="panel"><div class="panel-body">
+          <table id="models-table"><thead><tr><th>启用</th><th>模型</th><th>厂商</th><th>区域</th><th>Tokenizer</th><th>最大Token</th><th>费用</th><th>币种</th><th>操作</th></tr></thead><tbody></tbody></table>
+        </div></div>
+      </div>
+
+      <!-- Plans -->
+      <div id="page-plans" class="page">
+        <div class="page-header"><h1>套餐计划</h1></div>
+        <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:20px">
+          <div class="tab-bar" id="plan-type-bar" style="margin-bottom:0">
+            <button class="active" onclick="filterPlans(this,'')">全部</button>
+            <button onclick="filterPlans(this,'token_pack')">Token包</button>
+            <button onclick="filterPlans(this,'token_plan')">Token Plan</button>
+            <button onclick="filterPlans(this,'coding_plan')">编程套餐</button>
+            <button onclick="filterPlans(this,'discount_plan')">折扣优惠</button>
+            <button onclick="filterPlans(this,'free_tier')">免费额度</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:12px;color:var(--text3);font-weight:600">厂商</span>
+            <select id="plan-vendor-filter" onchange="filterPlansByVendor()" style="padding:7px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;font-family:var(--font);min-width:140px">
+              <option value="">全部厂商</option>
+            </select>
+          </div>
+        </div>
+        <div id="plans-list"></div>
+      </div>
+
+      <!-- Counter -->
+      <div id="page-counter" class="page">
+        <div class="page-header"><h1>Token计算器</h1></div>
+        <div class="token-counter-tool">
+          <div class="form-row">
+            <div class="form-group" style="flex:1"><label>选择模型</label><select id="counter-model"></select></div>
+            <div class="form-group" style="flex:2"><label>输入文本</label><textarea id="counter-text" placeholder="在此输入文本，实时计算Token数量..."></textarea></div>
+          </div>
+          <div class="token-result" id="counter-result" style="display:none">
+            <div style="display:flex;align-items:baseline;gap:14px">
+              <span style="font-size:13px;color:var(--text2)">Token数量</span>
+              <span class="num" id="counter-num">0</span>
+              <span style="font-size:12px;color:var(--text3)">|</span>
+              <span style="font-size:12px;color:var(--text2)">文本长度 <span id="counter-len">0</span> 字符</span>
+            </div>
+          </div>
+        </div>
+        <h2 style="font-size:16px;font-weight:700;margin:28px 0 16px;color:var(--text)">记录API调用</h2>
+        <div class="token-counter-tool">
+          <div class="form-row">
+            <div class="form-group"><label>API名称</label><input id="rec-api" placeholder="如 chat_completion"></div>
+            <div class="form-group"><label>模型</label><select id="rec-model"></select></div>
+            <div class="form-group"><label>Agent来源</label><select id="rec-agent"><option value="">未指定</option></select></div>
+          </div>
+          <div class="form-group"><label>输入文本</label><textarea id="rec-input" placeholder="用户输入的提示词..."></textarea></div>
+          <div class="form-group"><label>输出文本</label><textarea id="rec-output" placeholder="模型返回的响应..."></textarea></div>
+          <button class="btn btn-primary" onclick="recordCall()">记录调用</button>
+          <span id="rec-result" style="margin-left:12px;font-size:13px;color:var(--green2)"></span>
+        </div>
+      </div>
+
+      <!-- Records -->
+      <div id="page-records" class="page">
+        <div class="toolbar">
+          <div class="page-header"><h1>调用记录</h1></div>
+          <div class="toolbar-right">
+            <label class="cb-label">
+              <input type="checkbox" id="rec-enabled-only" onchange="loadRecords()"> 仅已启用
+            </label>
+            <button class="btn btn-ghost btn-sm" onclick="exportData('json')">导出JSON</button>
+          </div>
+        </div>
+        <div class="time-filter" id="rec-time-filter">
+          <button class="active" onclick="setRecPeriod(this,'')">全部</button>
+          <button onclick="setRecPeriod(this,'today')">今日</button>
+          <button onclick="setRecPeriod(this,'7d')">7天</button>
+          <button onclick="setRecPeriod(this,'30d')">30天</button>
+          <span class="sep">|</span>
+          <span style="font-size:12px;color:var(--text3);font-weight:600">Agent</span>
+          <select id="rec-agent-filter" onchange="loadRecords()" style="padding:7px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;color:var(--text);font-size:12px;font-family:var(--font);min-width:130px">
+            <option value="">全部</option>
+          </select>
+        </div>
+        <div class="panel"><div class="panel-body">
+          <table id="records-table"><thead><tr><th>ID</th><th>API</th><th>模型</th><th>Agent</th><th>输入Token</th><th>输出Token</th><th>总Token</th><th>时间</th></tr></thead><tbody></tbody></table>
+        </div></div>
+      </div>
+
+      <!-- Agent Import -->
+      <div id="page-agents" class="page">
+        <div class="toolbar">
+          <div class="page-header">
+            <h1>Agent 导入</h1>
+            <div class="subtitle">自动扫描本地 AI Agent 配置，一键导入已配置的大模型</div>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn btn-ghost btn-sm" onclick="scanAgents()">🔄 重新扫描</button>
+            <button class="btn btn-primary btn-sm" onclick="importSelectedAgents()">📥 导入选中</button>
+            <button class="btn btn-primary btn-sm" onclick="importAllAgents()">📥 全部导入</button>
+          </div>
+        </div>
+        <div id="agents-scan-status" style="margin-bottom:20px"></div>
+        <div id="agents-list"></div>
+
+        <div style="margin-top:32px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <div>
+              <h2 style="font-size:18px;font-weight:700">自定义扫描器</h2>
+              <div style="font-size:13px;color:var(--text2);margin-top:2px">添加不在内置列表中的 Agent 扫描规则，支持任意配置文件路径</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="showAddScannerModal()">+ 添加扫描器</button>
+          </div>
+          <div id="custom-scanners-list"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Vendor Modal -->
+<div class="modal-overlay" id="vendor-modal">
+  <div class="modal" style="width:580px">
+    <h3>添加厂商</h3>
+    <div class="form-row">
+      <div class="form-group"><label>厂商ID (英文)</label><input id="v-id" placeholder="mycompany"></div>
+      <div class="form-group"><label>厂商名称</label><input id="v-name" placeholder="我的公司"></div>
+    </div>
+    <div class="form-group"><label>API Base URL (多个用逗号分隔)</label><input id="v-base-url" placeholder="https://api.example.com/v1"></div>
+    <div class="form-row">
+      <div class="form-group"><label>区域</label><select id="v-region"><option value="china">国内</option><option value="international">国际</option><option value="custom">自定义</option></select></div>
+      <div class="form-group"><label>币种</label><select id="v-currency"><option value="CNY">CNY</option><option value="USD">USD</option><option value="EUR">EUR</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>API兼容格式</label><select id="v-api-compat"><option value="openai">OpenAI兼容</option><option value="anthropic">Anthropic</option><option value="google">Google</option><option value="cohere">Cohere</option><option value="baidu">百度</option><option value="spark">讯飞星火</option><option value="custom">自定义</option></select></div>
+      <div class="form-group"><label>认证方式</label><select id="v-auth-type"><option value="bearer_token">Bearer Token</option><option value="x_api_key">X-API-Key</option><option value="access_token">Access Token</option><option value="query_param">Query参数</option><option value="spark_auth">讯飞认证</option><option value="none">无需认证</option></select></div>
+    </div>
+    <div class="form-group"><label>认证Header模板</label><input id="v-auth-header" value="Authorization: Bearer {api_key}" placeholder="Authorization: Bearer {api_key}"></div>
+    <div class="form-group"><label>备注</label><input id="v-note" placeholder="可选"></div>
+    <div class="actions">
+      <button class="btn btn-ghost" onclick="closeModal('vendor-modal')">取消</button>
+      <button class="btn btn-primary" onclick="addVendor()">确认添加</button>
+    </div>
+  </div>
+</div>
+
+<!-- Model Modal -->
+<div class="modal-overlay" id="model-modal">
+  <div class="modal">
+    <h3>添加模型</h3>
+    <div class="form-group"><label>模型名称</label><input id="m-name" placeholder="my-model-v1"></div>
+    <div class="form-row">
+      <div class="form-group"><label>所属厂商</label><select id="m-vendor"></select></div>
+      <div class="form-group"><label>Tokenizer</label><select id="m-tokenizer"><option value="tiktoken">tiktoken</option><option value="estimator">字符估算</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>编码名称 (tiktoken)</label><select id="m-encoding"><option value="cl100k_base">cl100k_base</option><option value="o200k_base">o200k_base</option><option value="p50k_base">p50k_base</option></select></div>
+      <div class="form-group"><label>最大Token</label><input id="m-max" type="number" value="4096"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>输入单价 (每Token)</label><input id="m-icost" type="number" step="0.0000001" value="0"></div>
+      <div class="form-group"><label>输出单价 (每Token)</label><input id="m-ocost" type="number" step="0.0000001" value="0"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>币种</label><select id="m-currency"><option value="CNY">CNY</option><option value="USD">USD</option><option value="EUR">EUR</option></select></div>
+      <div class="form-group"><label>备注</label><input id="m-note" placeholder="可选"></div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-ghost" onclick="closeModal('model-modal')">取消</button>
+      <button class="btn btn-primary" onclick="addModel()">确认添加</button>
+    </div>
+  </div>
+</div>
+
+<!-- Scanner Modal -->
+<div class="modal-overlay" id="scanner-modal">
+  <div class="modal">
+    <h3>添加自定义扫描器</h3>
+    <div class="form-row">
+      <div class="form-group"><label>扫描器ID (英文)</label><input id="sc-id" placeholder="my-agent"></div>
+      <div class="form-group"><label>显示名称</label><input id="sc-name" placeholder="我的Agent"></div>
+    </div>
+    <div class="form-group"><label>描述</label><input id="sc-desc" placeholder="Agent描述"></div>
+    <div class="form-group"><label>配置文件路径</label><input id="sc-path" placeholder="如 ~/.myagent/config.json 或 /Users/xxx/.myagent/settings.toml"></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>模型字段路径</label>
+        <select id="sc-field-mode" onchange="toggleScannerFieldMode()">
+          <option value="__auto__">自动检测</option>
+          <option value="manual">手动指定</option>
+        </select>
+      </div>
+      <div class="form-group" id="sc-field-group" style="display:none">
+        <label>字段路径 (用.分隔)</label><input id="sc-field" placeholder="如 model.default 或 providers.0.models">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>厂商名称</label><input id="sc-vendor" placeholder="如 mycompany"></div>
+      <div class="form-group"><label>图标</label><input id="sc-icon" value="📦" maxlength="2"></div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-ghost" onclick="closeModal('scanner-modal')">取消</button>
+      <button class="btn btn-primary" onclick="addCustomScanner()">添加</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '';
+let allVendors = [], allModels = [], allPlans = [];
+let dashPeriod = '', dashFrom = '', dashTo = '';
+let recPeriod = '', recFrom = '', recTo = '';
+
+const CHART_COLORS = [
+  '#6366f1','#06b6d4','#10b981','#f59e0b','#ec4899',
+  '#3b82f6','#a855f7','#ef4444','#14b8a6','#f97316',
+  '#8b5cf6','#84cc16','#e11d48','#0ea5e9','#d946ef'
+];
+
+async function api(path, opts = {}) {
+  const res = await fetch(API + path, opts);
+  return res.json();
+}
+
+function fmt(n) { return n != null ? Number(n).toLocaleString() : '0'; }
+function pct(val, total) { return total > 0 ? (val / total * 100).toFixed(1) : '0.0'; }
+function shortNum(n) {
+  if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+  return n.toString();
+}
+
+function makeDonutSVG(data, total, size = 160) {
+  const cx = size / 2, cy = size / 2, r = 60, sw = 18;
+  const circumference = 2 * Math.PI * r;
+  let offset = 0;
+  let paths = '';
+  data.forEach((d, i) => {
+    const pctVal = total > 0 ? d.value / total : 0;
+    const dashLen = pctVal * circumference;
+    const gap = circumference - dashLen;
+    paths += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${CHART_COLORS[i % CHART_COLORS.length]}" stroke-width="${sw}" stroke-dasharray="${dashLen} ${gap}" stroke-dashoffset="${-offset}" stroke-linecap="round" style="transition:all .6s cubic-bezier(.4,0,.2,1)"/>`;
+    offset += dashLen;
+  });
+  return `<svg class="donut-svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${paths}<text x="${cx}" y="${cy - 6}" text-anchor="middle" fill="var(--text)" font-size="18" font-weight="800" font-family="var(--font)">${shortNum(total)}</text><text x="${cx}" y="${cy + 12}" text-anchor="middle" fill="var(--text3)" font-size="10" font-weight="600" font-family="var(--font)">TOKENS</text></svg>`;
+}
+
+function renderDonut(containerId, items, total) {
+  const el = document.getElementById(containerId);
+  if (!items.length) { el.innerHTML = '<div class="empty" style="width:100%">暂无数据</div>'; return; }
+  const top = items.slice(0, 8);
+  const data = top.map(d => ({ name: d.name, value: d.value }));
+  const otherVal = items.slice(8).reduce((s, d) => s + d.value, 0);
+  if (otherVal > 0) data.push({ name: '其他', value: otherVal });
+  let html = makeDonutSVG(data, total);
+  html += '<div class="donut-legend">';
+  data.forEach((d, i) => {
+    html += `<div class="donut-legend-item">
+      <span class="donut-legend-dot" style="background:${CHART_COLORS[i % CHART_COLORS.length]}"></span>
+      <span class="donut-legend-name">${d.name}</span>
+      <span class="donut-legend-val">${shortNum(d.value)}</span>
+      <span class="donut-legend-pct">${pct(d.value, total)}%</span>
+    </div>`;
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+document.querySelectorAll('.sidebar nav a').forEach(a => {
+  a.addEventListener('click', () => {
+    document.querySelectorAll('.sidebar nav a').forEach(x => x.classList.remove('active'));
+    a.classList.add('active');
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + a.dataset.page).classList.add('active');
+    loadPage(a.dataset.page);
+  });
+});
+
+function loadPage(page) {
+  switch(page) {
+    case 'dashboard': loadDashboard(); break;
+    case 'vendors': loadVendors(); break;
+    case 'models': loadModels(); break;
+    case 'plans': loadPlans(); initPlanVendorFilter(); break;
+    case 'counter': loadCounterModels(); break;
+    case 'records': loadRecords(); break;
+    case 'agents': scanAgents(); break;
+  }
+}
+
+async function quickScanAgents() {
+  const btn = document.getElementById('btn-scan-agents');
+  btn.textContent = '🔍 扫描中...';
+  btn.disabled = true;
+  try {
+    const agents = await api('/api/agents/scan');
+    const installed = agents.filter(a => a.installed);
+    const totalModels = installed.reduce((s, a) => s + a.model_count, 0);
+    if (totalModels === 0) {
+      btn.textContent = '🔗 未发现Agent';
+      setTimeout(() => { btn.textContent = '🔗 扫描本机Agent'; btn.disabled = false; }, 3000);
+      return;
+    }
+    const doImport = confirm(`扫描完成！发现 ${installed.length} 个已安装 Agent，共 ${totalModels} 个模型。\n\n${installed.map(a => a.icon + ' ' + a.name + ' (' + a.model_count + '个模型)').join('\n')}\n\n是否导入到模型注册表？`);
+    if (doImport) {
+      const res = await api('/api/agents/import', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({all: true}),
+      });
+      if (res.imported_models > 0) {
+        btn.textContent = `✅ 已导入 ${res.imported_models} 个模型`;
+      } else if (res.skipped_existing > 0) {
+        btn.textContent = `✅ ${res.skipped_existing} 个模型已存在`;
+      } else {
+        btn.textContent = `✅ 完成`;
+      }
+      setTimeout(() => { btn.textContent = '🔗 扫描本机Agent'; btn.disabled = false; }, 4000);
+      loadDashboard();
+    } else {
+      btn.textContent = '🔗 扫描本机Agent';
+      btn.disabled = false;
+      document.querySelectorAll('.sidebar nav a').forEach(a => {
+        if (a.dataset.page === 'agents') a.click();
+      });
+    }
+  } catch (e) {
+    btn.textContent = '❌ 扫描失败';
+    setTimeout(() => { btn.textContent = '🔗 扫描本机Agent'; btn.disabled = false; }, 3000);
+  }
+}
+
+async function checkFirstVisit() {
+  const key = 'token_counter_scanned';
+  if (localStorage.getItem(key)) return;
+  try {
+    const agents = await api('/api/agents/scan');
+    const installed = agents.filter(a => a.installed);
+    if (installed.length === 0) return;
+    const totalModels = installed.reduce((s, a) => s + a.model_count, 0);
+    if (totalModels === 0) return;
+    const banner = document.createElement('div');
+    banner.id = 'first-scan-banner';
+    banner.style.cssText = 'position:fixed;top:20px;right:20px;z-index:200;background:var(--surface2);border:1px solid var(--primary);border-radius:var(--radius);padding:20px 24px;max-width:380px;box-shadow:0 8px 32px rgba(0,0,0,.5);animation:fadeIn .3s ease';
+    banner.innerHTML = `
+      <div style="font-size:15px;font-weight:700;margin-bottom:8px">🔍 发现 ${installed.length} 个本地 Agent</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:14px">
+        ${installed.map(a => a.icon + ' ' + a.name).join(' · ')}<br>
+        共 ${totalModels} 个模型可导入
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary btn-sm" onclick="doFirstScanImport()">立即导入</button>
+        <button class="btn btn-ghost btn-sm" onclick="dismissFirstScan()">稍后</button>
+      </div>`;
+    document.body.appendChild(banner);
+  } catch(e) {}
+}
+
+async function doFirstScanImport() {
+  const banner = document.getElementById('first-scan-banner');
+  if (banner) banner.remove();
+  const res = await api('/api/agents/import', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({all: true}),
+  });
+  localStorage.setItem('token_counter_scanned', '1');
+  const msg = res.imported_models > 0
+    ? `导入完成！新增 ${res.imported_models} 个模型，${res.imported_vendors} 个厂商`
+    : res.skipped_existing > 0
+    ? `${res.skipped_existing} 个模型已存在于注册表中`
+    : '没有可导入的新模型';
+  alert(msg);
+  loadDashboard();
+}
+
+function dismissFirstScan() {
+  const banner = document.getElementById('first-scan-banner');
+  if (banner) banner.remove();
+  localStorage.setItem('token_counter_scanned', '1');
+}
+
+let scannedAgents = [];
+
+async function scanAgents() {
+  const statusEl = document.getElementById('agents-scan-status');
+  const listEl = document.getElementById('agents-list');
+  statusEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text2)"><span style="font-size:24px">🔍</span><br>正在扫描本地 Agent 配置...</div>';
+  listEl.innerHTML = '';
+  try {
+    scannedAgents = await api('/api/agents/scan');
+    const installed = scannedAgents.filter(a => a.installed);
+    const totalModels = installed.reduce((s, a) => s + a.model_count, 0);
+    statusEl.innerHTML = `
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        <div class="stat-card" style="flex:1;min-width:140px">
+          <div class="sc-header"><div class="sc-icon sc-icon-primary">🔍</div></div>
+          <div class="sc-label">已扫描</div>
+          <div class="sc-value">${scannedAgents.length}</div>
+        </div>
+        <div class="stat-card" style="flex:1;min-width:140px">
+          <div class="sc-header"><div class="sc-icon sc-icon-green">✅</div></div>
+          <div class="sc-label">已安装</div>
+          <div class="sc-value">${installed.length}</div>
+        </div>
+        <div class="stat-card" style="flex:1;min-width:140px">
+          <div class="sc-header"><div class="sc-icon sc-icon-cyan">🤖</div></div>
+          <div class="sc-label">可导入模型</div>
+          <div class="sc-value">${totalModels}</div>
+        </div>
+      </div>`;
+    listEl.innerHTML = scannedAgents.map(a => {
+      const opacity = a.installed ? '1' : '0.45';
+      return `
+      <div class="panel" style="margin-bottom:12px;opacity:${opacity}">
+        <div style="padding:20px 24px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="display:flex;align-items:center;gap:14px">
+              ${a.installed ? `<label class="cb-label"><input type="checkbox" class="agent-cb" data-agent="${a.id}" checked></label>` : ''}
+              <span style="font-size:28px">${a.icon}</span>
+              <div>
+                <div style="font-size:15px;font-weight:700">${a.name}</div>
+                <div style="font-size:12px;color:var(--text3);margin-top:2px">${a.description}</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+              ${a.installed
+                ? `<span class="badge badge-coding_plan">已安装 · ${a.model_count} 个模型</span>`
+                : `<span class="badge" style="background:var(--surface3);color:var(--text3)">未安装</span>`}
+            </div>
+          </div>
+          ${a.installed && a.models.length ? `
+          <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px">
+            ${a.models.map(m => `
+              <span style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-xs);font-size:12px">
+                ${m.is_default ? '<span style="color:var(--orange2)">⭐</span>' : ''}
+                <span style="font-weight:600;color:var(--text)">${m.id}</span>
+                <span style="color:var(--text3)">${m.vendor_display}</span>
+              </span>
+            `).join('')}
+          </div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    statusEl.innerHTML = `<div style="color:var(--red2);padding:16px">扫描失败: ${e.message}</div>`;
+  }
+  loadCustomScannersList();
+}
+
+async function loadCustomScannersList() {
+  const listEl = document.getElementById('custom-scanners-list');
+  try {
+    const scanners = await api('/api/agents/custom');
+    if (!scanners.length) {
+      listEl.innerHTML = '<div class="empty" style="padding:20px">暂无自定义扫描器，点击上方按钮添加</div>';
+      return;
+    }
+    listEl.innerHTML = scanners.map(s => `
+      <div class="panel" style="margin-bottom:10px">
+        <div style="padding:16px 20px;display:flex;justify-content:space-between;align-items:center">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-size:22px">${s.icon || '📦'}</span>
+            <div>
+              <div style="font-weight:700">${s.name} <span style="font-size:11px;color:var(--text3)">(${s.id})</span></div>
+              <div style="font-size:12px;color:var(--text3)">${s.description || ''} · ${s.config_path}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            ${s.installed ? '<span class="badge badge-coding_plan">已安装</span>' : '<span class="badge" style="background:var(--surface3);color:var(--text3)">未找到</span>'}
+            <button class="btn btn-danger btn-sm" onclick="deleteCustomScanner('${s.id}')">删除</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    listEl.innerHTML = `<div style="color:var(--red2)">加载失败</div>`;
+  }
+}
+
+function showAddScannerModal() {
+  document.getElementById('scanner-modal').classList.add('show');
+}
+function toggleScannerFieldMode() {
+  const mode = document.getElementById('sc-field-mode').value;
+  document.getElementById('sc-field-group').style.display = mode === 'manual' ? '' : 'none';
+}
+async function addCustomScanner() {
+  const mode = document.getElementById('sc-field-mode').value;
+  const data = {
+    id: document.getElementById('sc-id').value,
+    name: document.getElementById('sc-name').value,
+    description: document.getElementById('sc-desc').value,
+    config_path: document.getElementById('sc-path').value,
+    model_field: mode === 'manual' ? document.getElementById('sc-field').value : '__auto__',
+    vendor_name: document.getElementById('sc-vendor').value,
+    icon: document.getElementById('sc-icon').value || '📦',
+  };
+  if (!data.id || !data.name || !data.config_path) {
+    alert('请填写扫描器ID、名称和配置文件路径');
+    return;
+  }
+  await api('/api/agents/custom', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(data),
+  });
+  closeModal('scanner-modal');
+  scanAgents();
+}
+async function deleteCustomScanner(id) {
+  if (!confirm('确定删除扫描器 ' + id + '？')) return;
+  await api('/api/agents/custom/' + id, { method: 'DELETE' });
+  scanAgents();
+}
+
+async function importSelectedAgents() {
+  const checked = document.querySelectorAll('.agent-cb:checked');
+  if (!checked.length) { alert('请至少选择一个 Agent'); return; }
+  const agentIds = Array.from(checked).map(cb => cb.dataset.agent);
+  const statusEl = document.getElementById('agents-scan-status');
+  statusEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text2)">正在导入...</div>';
+  try {
+    const res = await api('/api/agents/import', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({agents: agentIds}),
+    });
+    statusEl.innerHTML = `
+      <div style="padding:20px;background:var(--green-glow);border:1px solid rgba(16,185,129,.2);border-radius:var(--radius-sm)">
+        <div style="font-weight:700;color:var(--green2);margin-bottom:8px">✅ 导入完成</div>
+        <div style="font-size:13px;color:var(--text2)">
+          扫描到 ${res.scanned} 个模型 · 选中 ${res.selected} 个<br>
+          新增厂商 ${res.imported_vendors} 个 · 新增模型 ${res.imported_models} 个${res.skipped_existing > 0 ? ' · 已存在跳过 ' + res.skipped_existing + ' 个' : ''}
+        </div>
+      </div>`;
+    scanAgents();
+  } catch (e) {
+    statusEl.innerHTML = `<div style="color:var(--red2);padding:16px">导入失败: ${e.message}</div>`;
+  }
+}
+
+async function importAllAgents() {
+  const statusEl = document.getElementById('agents-scan-status');
+  statusEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text2)">正在导入全部...</div>';
+  try {
+    const res = await api('/api/agents/import', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({all: true}),
+    });
+    statusEl.innerHTML = `
+      <div style="padding:20px;background:var(--green-glow);border:1px solid rgba(16,185,129,.2);border-radius:var(--radius-sm)">
+        <div style="font-weight:700;color:var(--green2);margin-bottom:8px">✅ 全部导入完成</div>
+        <div style="font-size:13px;color:var(--text2)">
+          扫描到 ${res.scanned} 个模型<br>
+          新增厂商 ${res.imported_vendors} 个 · 新增模型 ${res.imported_models} 个${res.skipped_existing > 0 ? ' · 已存在跳过 ' + res.skipped_existing + ' 个' : ''}
+        </div>
+      </div>`;
+    scanAgents();
+  } catch (e) {
+    statusEl.innerHTML = `<div style="color:var(--red2);padding:16px">导入失败: ${e.message}</div>`;
+  }
+}
+
+function setTimePeriod(btn, period) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  dashPeriod = period; dashFrom = ''; dashTo = '';
+  document.getElementById('dash-from').value = '';
+  document.getElementById('dash-to').value = '';
+  loadDashboard();
+}
+function setCustomTime() {
+  dashFrom = document.getElementById('dash-from').value;
+  dashTo = document.getElementById('dash-to').value;
+  dashPeriod = '';
+  document.querySelectorAll('#dash-time-filter button').forEach(b => b.classList.remove('active'));
+  if (dashFrom || dashTo) loadDashboard();
+}
+function setRecPeriod(btn, period) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  recPeriod = period; recFrom = ''; recTo = '';
+  loadRecords();
+}
+function buildTimeQuery(prefix) {
+  let q = '';
+  const period = prefix === 'dash' ? dashPeriod : recPeriod;
+  const from = prefix === 'dash' ? dashFrom : recFrom;
+  const to = prefix === 'dash' ? dashTo : recTo;
+  const agentEl = document.getElementById(prefix === 'dash' ? 'dash-agent-filter' : 'rec-agent-filter');
+  const agent = agentEl ? agentEl.value : '';
+  if (period) q += `&period=${period}`;
+  if (from) q += `&from=${from}`;
+  if (to) q += `&to=${to}`;
+  if (agent) q += `&agent=${encodeURIComponent(agent)}`;
+  return q;
+}
+
+async function refreshAgentFilters() {
+  try {
+    const agents = await api('/api/agents/list');
+    ['dash-agent-filter', 'rec-agent-filter', 'rec-agent'].forEach(id => {
+      const sel = document.getElementById(id);
+      if (!sel) return;
+      const curVal = sel.value;
+      const isRecordForm = id === 'rec-agent';
+      sel.innerHTML = isRecordForm
+        ? '<option value="">未指定</option>' + agents.map(a => `<option value="${a}">${a}</option>`).join('')
+        : '<option value="">全部</option>' + agents.map(a => `<option value="${a}">${a}</option>`).join('');
+      sel.value = curVal;
+    });
+  } catch(e) {}
+}
+
+async function loadDashboard() {
+    refreshAgentFilters();
+    const enabledOnly = document.getElementById('dash-enabled-only').checked ? '1' : '0';
+  const tq = buildTimeQuery('dash');
+  const summary = await api(`/api/summary?with_cost=1&enabled_only=${enabledOnly}${tq}`);
+  const cards = document.getElementById('summary-cards');
+  cards.innerHTML = `
+    <div class="stat-card">
+      <div class="sc-header"><div class="sc-icon sc-icon-primary">📡</div></div>
+      <div class="sc-label">总调用次数</div>
+      <div class="sc-value">${fmt(summary.total_calls)}</div>
+      <div class="sc-glow glow-primary"></div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-header"><div class="sc-icon sc-icon-cyan">⚡</div></div>
+      <div class="sc-label">总Token消耗</div>
+      <div class="sc-value">${shortNum(summary.total_tokens)}</div>
+      <div class="sc-glow glow-cyan"></div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-header"><div class="sc-icon sc-icon-green">⬆</div></div>
+      <div class="sc-label">输入Token</div>
+      <div class="sc-value">${shortNum(summary.total_input_tokens)}</div>
+      <div class="sc-glow glow-green"></div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-header"><div class="sc-icon sc-icon-blue">⬇</div></div>
+      <div class="sc-label">输出Token</div>
+      <div class="sc-value">${shortNum(summary.total_output_tokens)}</div>
+      <div class="sc-glow glow-blue"></div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-header"><div class="sc-icon sc-icon-orange">🤖</div></div>
+      <div class="sc-label">模型数</div>
+      <div class="sc-value">${summary.unique_models}</div>
+      <div class="sc-glow glow-orange"></div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-header"><div class="sc-icon sc-icon-pink">🔌</div></div>
+      <div class="sc-label">API数</div>
+      <div class="sc-value">${summary.unique_apis}</div>
+      <div class="sc-glow glow-pink"></div>
+    </div>
+  `;
+
+  const stats = await api(`/api/stats?by=model&enabled_only=${enabledOnly}${tq}`);
+  const maxTokens = stats.reduce((m, s) => Math.max(m, s.total_tokens), 0);
+  const tbody1 = document.querySelector('#stats-model-table tbody');
+  tbody1.innerHTML = stats.map((s, i) => `<tr>
+    <td style="font-weight:700;color:${CHART_COLORS[i % CHART_COLORS.length]}">${s.group_key}</td>
+    <td>${fmt(s.call_count)}</td>
+    <td>${fmt(s.total_input_tokens)}</td>
+    <td>${fmt(s.total_output_tokens)}</td>
+    <td style="font-weight:700">${fmt(s.total_tokens)}</td>
+    <td style="min-width:140px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="table-bar" style="flex:1"><div class="table-bar-fill" style="width:${pct(s.total_tokens, maxTokens)}%;background:${CHART_COLORS[i % CHART_COLORS.length]}"></div></div>
+        <span style="font-size:11px;color:var(--text2);font-weight:600;min-width:40px;text-align:right">${pct(s.total_tokens, summary.total_tokens)}%</span>
+      </div>
+    </td>
+  </tr>`).join('');
+
+  renderDonut('model-donut', stats.map(s => ({ name: s.group_key, value: s.total_tokens })), summary.total_tokens);
+
+  const vstats = await api(`/api/stats?by=vendor&enabled_only=${enabledOnly}${tq}`);
+  const maxVendor = vstats.reduce((m, s) => Math.max(m, s.total_tokens), 0);
+  const tbody2 = document.querySelector('#stats-vendor-table tbody');
+  tbody2.innerHTML = vstats.map((s, i) => `<tr>
+    <td style="font-weight:700;color:${CHART_COLORS[i % CHART_COLORS.length]}">${s.group_key}</td>
+    <td>${fmt(s.call_count)}</td>
+    <td style="font-weight:700">${fmt(s.total_tokens)}</td>
+    <td style="min-width:140px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="table-bar" style="flex:1"><div class="table-bar-fill" style="width:${pct(s.total_tokens, maxVendor)}%;background:${CHART_COLORS[i % CHART_COLORS.length]}"></div></div>
+        <span style="font-size:11px;color:var(--text2);font-weight:600;min-width:40px;text-align:right">${pct(s.total_tokens, summary.total_tokens)}%</span>
+      </div>
+    </td>
+  </tr>`).join('');
+
+  renderDonut('vendor-donut', vstats.map(s => ({ name: s.group_key, value: s.total_tokens })), summary.total_tokens);
+
+  const astats = await api(`/api/stats?by=agent&enabled_only=${enabledOnly}${tq}`);
+  const maxAgent = astats.reduce((m, s) => Math.max(m, s.total_tokens), 0);
+  const atbody = document.querySelector('#stats-agent-table tbody');
+  atbody.innerHTML = astats.map((s, i) => `<tr>
+    <td style="font-weight:700;color:${CHART_COLORS[i % CHART_COLORS.length]}">${s.group_key}</td>
+    <td>${fmt(s.call_count)}</td>
+    <td>${fmt(s.total_input_tokens)}</td>
+    <td>${fmt(s.total_output_tokens)}</td>
+    <td style="font-weight:700">${fmt(s.total_tokens)}</td>
+    <td style="min-width:140px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="table-bar" style="flex:1"><div class="table-bar-fill" style="width:${pct(s.total_tokens, maxAgent)}%;background:${CHART_COLORS[i % CHART_COLORS.length]}"></div></div>
+        <span style="font-size:11px;color:var(--text2);font-weight:600;min-width:40px;text-align:right">${pct(s.total_tokens, summary.total_tokens)}%</span>
+      </div>
+    </td>
+  </tr>`).join('');
+  renderDonut('agent-donut', astats.map(s => ({ name: s.group_key, value: s.total_tokens })), summary.total_tokens);
+
+  const costDiv = document.getElementById('cost-section');
+  if (summary.estimated_cost && summary.estimated_cost.by_currency && Object.keys(summary.estimated_cost.by_currency).length) {
+    const ec = summary.estimated_cost;
+    let html = '<div class="cost-grid">';
+    for (const [cur, amt] of Object.entries(ec.by_currency)) {
+      html += `<div class="cost-card"><div class="cost-label">费用 (${cur})</div><div class="cost-value">${amt.toFixed(4)}</div><div class="cost-cur">${cur}</div></div>`;
+    }
+    html += '</div>';
+    if (ec.by_model.length) {
+      html += '<table><thead><tr><th>模型</th><th>厂商</th><th>输入费用</th><th>输出费用</th><th>总费用</th><th>币种</th></tr></thead><tbody>';
+      ec.by_model.forEach(m => {
+        html += `<tr><td style="font-weight:700">${m.model}</td><td>${m.vendor}</td><td>${m.input_cost}</td><td>${m.output_cost}</td><td style="font-weight:700">${m.total_cost}</td><td>${m.currency}</td></tr>`;
+      });
+      html += '</tbody></table>';
+    }
+    costDiv.innerHTML = html;
+  } else {
+    costDiv.innerHTML = '<div class="empty">暂无费用数据</div>';
+  }
+}
+
+async function loadVendors(region) {
+  const url = region ? `/api/vendors?region=${region}` : '/api/vendors';
+  allVendors = await api(url);
+  renderVendors();
+}
+function filterVendors(btn, region) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadVendors(region);
+}
+function renderVendors() {
+  const tbody = document.querySelector('#vendors-table tbody');
+  tbody.innerHTML = allVendors.map(v => {
+    const urls = (v.base_urls || []).map(u => `<span class="url-tag">${u}</span>`).join(' ') || '<span style="color:var(--text3)">-</span>';
+    return `<tr>
+    <td><label class="toggle-switch"><input type="checkbox" ${v.enabled ? 'checked' : ''} onchange="toggleVendor('${v.id}', this.checked)"><span class="slider"></span></label></td>
+    <td style="font-weight:700">${v.id}</td><td>${v.name}</td>
+    <td><span class="badge badge-${v.region}">${v.region === 'china' ? '国内' : v.region === 'international' ? '国际' : '自定义'}</span></td>
+    <td>${urls}</td>
+    <td><span class="badge badge-${v.api_compatibility === 'openai' ? 'token_pack' : 'coding_plan'}">${v.api_compatibility || '?'}</span></td>
+    <td style="font-size:12px;color:var(--text2)">${v.auth_type || '?'}</td>
+    <td style="font-weight:700">${v.model_count || 0}</td>
+    <td>${v.currency}</td>
+    <td>${v.is_custom ? `<button class="btn btn-danger btn-sm" onclick="deleteVendor('${v.id}')">删除</button>` : '<span style="color:var(--text3);font-size:11px">内置</span>'}</td>
+  </tr>`;
+  }).join('');
+}
+async function toggleVendor(id, enabled) {
+  await api(`/api/vendors/${id}/toggle`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({enabled}) });
+  loadVendors(); loadModels();
+}
+function showVendorModal() { document.getElementById('vendor-modal').classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+async function addVendor() {
+  const baseUrls = document.getElementById('v-base-url').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const data = { id: document.getElementById('v-id').value, name: document.getElementById('v-name').value, region: document.getElementById('v-region').value, currency: document.getElementById('v-currency').value, base_urls: baseUrls, api_compatibility: document.getElementById('v-api-compat').value, auth_type: document.getElementById('v-auth-type').value, auth_header: document.getElementById('v-auth-header').value, note: document.getElementById('v-note').value || '' };
+  await api('/api/vendors', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+  closeModal('vendor-modal'); loadVendors();
+}
+async function deleteVendor(id) {
+  if (!confirm('确定删除厂商 ' + id + '？')) return;
+  await api('/api/vendors/' + id, { method: 'DELETE' }); loadVendors();
+}
+async function toggleAllVendors(enabled) {
+  if (enabled) await api('/api/enabled/enable-all', { method: 'POST' });
+  else await api('/api/enabled/disable-all', { method: 'POST' });
+  loadVendors();
+}
+
+async function loadModels(region) {
+  const url = region ? `/api/models?region=${region}` : '/api/models';
+  allModels = await api(url); renderModels();
+}
+function filterModels(btn, region) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active'); loadModels(region);
+}
+function renderModels() {
+  const tbody = document.querySelector('#models-table tbody');
+  tbody.innerHTML = allModels.map(m => `<tr>
+    <td><label class="toggle-switch"><input type="checkbox" ${m.enabled ? 'checked' : ''} onchange="toggleModel('${m.model}', this.checked)"><span class="slider"></span></label></td>
+    <td style="font-weight:700">${m.model}</td><td>${m.vendor_name}</td>
+    <td><span class="badge badge-${m.region}">${m.region === 'china' ? '国内' : m.region === 'international' ? '国际' : '自定义'}</span></td>
+    <td style="font-size:12px;font-family:var(--mono)">${m.tokenizer_type}</td><td>${fmt(m.max_tokens)}</td>
+    <td>${m.has_cost_info ? '<span style="color:var(--green2)">✓</span>' : '<span style="color:var(--text3)">✗</span>'}</td><td>${m.cost_currency || '-'}</td>
+    <td>${m.is_custom ? `<button class="btn btn-danger btn-sm" onclick="deleteModel('${m.model}')">删除</button>` : '<span style="color:var(--text3);font-size:11px">内置</span>'}</td>
+  </tr>`).join('');
+}
+async function toggleModel(name, enabled) {
+  await api(`/api/models/${name}/toggle`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({enabled}) });
+}
+async function toggleAllModels(enabled) {
+  if (enabled) await api('/api/enabled/enable-all', { method: 'POST' });
+  else await api('/api/enabled/disable-all', { method: 'POST' });
+  loadModels();
+}
+async function showModelModal() {
+  const vendors = await api('/api/vendors');
+  const sel = document.getElementById('m-vendor');
+  sel.innerHTML = vendors.map(v => `<option value="${v.id}">${v.name} (${v.id})</option>`).join('');
+  document.getElementById('model-modal').classList.add('show');
+}
+async function addModel() {
+  const data = { name: document.getElementById('m-name').value, vendor: document.getElementById('m-vendor').value, tokenizer_type: document.getElementById('m-tokenizer').value, encoding_name: document.getElementById('m-encoding').value, max_tokens: parseInt(document.getElementById('m-max').value) || 4096, cost_per_input_token: parseFloat(document.getElementById('m-icost').value) || 0, cost_per_output_token: parseFloat(document.getElementById('m-ocost').value) || 0, cost_currency: document.getElementById('m-currency').value, note: document.getElementById('m-note').value || null };
+  await api('/api/models', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+  closeModal('model-modal'); loadModels();
+}
+async function deleteModel(name) {
+  if (!confirm('确定删除模型 ' + name + '？')) return;
+  await api('/api/models/' + name, { method: 'DELETE' }); loadModels();
+}
+
+let planTypeFilter = '', planVendorFilter = '';
+
+async function loadPlans(type, vendor) {
+  if (type !== undefined) planTypeFilter = type;
+  if (vendor !== undefined) planVendorFilter = vendor;
+  const params = new URLSearchParams();
+  if (planTypeFilter) params.set('type', planTypeFilter);
+  if (planVendorFilter) params.set('vendor', planVendorFilter);
+  const qs = params.toString();
+  allPlans = await api(qs ? `/api/plans?${qs}` : '/api/plans');
+  renderPlans();
+}
+function filterPlans(btn, type) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadPlans(type);
+}
+function filterPlansByVendor() {
+  const v = document.getElementById('plan-vendor-filter').value;
+  loadPlans(undefined, v);
+}
+async function initPlanVendorFilter() {
+  const vendors = await api('/api/vendors');
+  const sel = document.getElementById('plan-vendor-filter');
+  const curVal = sel.value;
+  sel.innerHTML = '<option value="">全部厂商</option>' + vendors.map(v => `<option value="${v.id}">${v.name}</option>`).join('');
+  sel.value = curVal;
+}
+function renderPlans() {
+  const div = document.getElementById('plans-list');
+  if (!allPlans.length) { div.innerHTML = '<div class="empty">暂无套餐数据</div>'; return; }
+  const vendorsMap = {};
+  allVendors.length || api('/api/vendors').then(v => { allVendors = v; });
+  div.innerHTML = allPlans.map(p => {
+    let quotaHtml = '';
+    if (p.credits_per_month) quotaHtml = `Credits: <strong>${fmt(p.credits_per_month)}</strong>/月`;
+    else if (p.prompts_per_5h) quotaHtml = `Prompt: <strong>${fmt(p.prompts_per_5h)}</strong>/5h`;
+    else if (p.requests_per_5h) quotaHtml = `请求: <strong>${fmt(p.requests_per_5h)}</strong>/5h`;
+    else if (p.calls_per_month) quotaHtml = `调用: <strong>${fmt(p.calls_per_month)}</strong>/月`;
+    else if (p.included_tokens) quotaHtml = `包含Token: <strong>${fmt(p.included_tokens)}</strong>`;
+    return `
+    <div class="plan-card">
+      <div class="plan-header">
+        <div><span class="plan-name">${p.name}</span> <span class="badge badge-${p.type}" style="margin-left:10px">${p.type}</span> <span style="font-size:11px;color:var(--text3);margin-left:8px">${p.vendor}</span></div>
+        <div class="plan-price">${p.price} ${p.currency}${p.discount_rate ? ' <span class="plan-discount">(' + (p.discount_rate * 100) + '%折扣)</span>' : ''}</div>
+      </div>
+      <div class="plan-desc">${p.description}</div>
+      <div class="plan-meta">${quotaHtml} &nbsp;·&nbsp; 适用: ${p.applicable_models.join(', ')}</div>
+    </div>`;
+  }).join('');
+}
+
+async function loadCounterModels() {
+  const models = await api('/api/models');
+  const opts = models.map(m => `<option value="${m.model}">${m.model} (${m.vendor_name})</option>`).join('');
+  document.getElementById('counter-model').innerHTML = opts;
+  document.getElementById('rec-model').innerHTML = opts;
+  refreshAgentFilters();
+}
+let countTimer = null;
+document.getElementById('counter-text').addEventListener('input', function() {
+  clearTimeout(countTimer);
+  countTimer = setTimeout(async () => {
+    const text = this.value;
+    if (!text) { document.getElementById('counter-result').style.display = 'none'; return; }
+    const model = document.getElementById('counter-model').value;
+    const res = await api('/api/count', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({text, model}) });
+    document.getElementById('counter-num').textContent = res.token_count;
+    document.getElementById('counter-len').textContent = res.text_length;
+    document.getElementById('counter-result').style.display = 'block';
+  }, 300);
+});
+
+async function recordCall() {
+  const data = { api_name: document.getElementById('rec-api').value, model: document.getElementById('rec-model').value, input_text: document.getElementById('rec-input').value, output_text: document.getElementById('rec-output').value, agent: document.getElementById('rec-agent').value };
+  const res = await api('/api/record', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+  document.getElementById('rec-result').textContent = `✓ 已记录 #${res.id} | 输入:${res.input_tokens} 输出:${res.output_tokens} 总计:${res.total_tokens}${res.agent ? ' | Agent:' + res.agent : ''}`;
+  document.getElementById('rec-input').value = '';
+  document.getElementById('rec-output').value = '';
+}
+
+async function loadRecords() {
+  refreshAgentFilters();
+  const enabledOnly = document.getElementById('rec-enabled-only').checked ? '1' : '0';
+  const tq = buildTimeQuery('rec');
+  const data = await api(`/api/export?format=json&enabled_only=${enabledOnly}${tq}`);
+  const records = JSON.parse(data);
+  const tbody = document.querySelector('#records-table tbody');
+  if (!records.length) { tbody.innerHTML = '<tr><td colspan="8" class="empty">暂无记录</td></tr>'; return; }
+  tbody.innerHTML = records.map(r => `<tr>
+    <td style="font-family:var(--mono);font-size:12px">${r.id}</td><td>${r.api_name}</td><td style="font-weight:700">${r.model}</td>
+    <td>${r.agent ? `<span class="badge badge-coding_plan">${r.agent}</span>` : '<span style="color:var(--text3)">-</span>'}</td>
+    <td>${fmt(r.input_tokens)}</td><td>${fmt(r.output_tokens)}</td><td style="font-weight:700">${fmt(r.total_tokens)}</td>
+    <td style="font-size:12px;color:var(--text2);font-family:var(--mono)">${r.created_at}</td>
+  </tr>`).join('');
+}
+
+function exportData(fmt) { window.open(API + '/api/export?format=' + fmt, '_blank'); }
+
+loadDashboard();
+checkFirstVisit();
+</script>
+</body>
+</html>

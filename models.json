@@ -1,0 +1,1173 @@
+{
+  "vendors": {
+    "openai": {
+      "name": "OpenAI",
+      "region": "international",
+      "currency": "USD",
+      "base_urls": ["https://api.openai.com/v1"],
+      "api_compatibility": "openai",
+      "auth_type": "bearer_token",
+      "auth_header": "Authorization: Bearer {api_key}"
+    },
+    "anthropic": {
+      "name": "Anthropic",
+      "region": "international",
+      "currency": "USD",
+      "base_urls": ["https://api.anthropic.com/v1"],
+      "api_compatibility": "anthropic",
+      "auth_type": "x_api_key",
+      "auth_header": "x-api-key: {api_key}"
+    },
+    "google": {
+      "name": "Google",
+      "region": "international",
+      "currency": "USD",
+      "base_urls": ["https://generativelanguage.googleapis.com/v1beta"],
+      "api_compatibility": "google",
+      "auth_type": "query_param",
+      "auth_header": "key={api_key}"
+    },
+    "meta": {
+      "name": "Meta",
+      "region": "international",
+      "currency": "USD",
+      "base_urls": [],
+      "api_compatibility": "openai",
+      "auth_type": "none",
+      "auth_header": "",
+      "note": "Meta开源模型，需自行部署或通过第三方平台调用"
+    },
+    "mistral": {
+      "name": "Mistral AI",
+      "region": "international",
+      "currency": "USD",
+      "base_urls": ["https://api.mistral.ai/v1"],
+      "api_compatibility": "openai",
+      "auth_type": "bearer_token",
+      "auth_header": "Authorization: Bearer {api_key}"
+    },
+    "cohere": {
+      "name": "Cohere",
+      "region": "international",
+      "currency": "USD",
+      "base_urls": ["https://api.cohere.ai/v1"],
+      "api_compatibility": "cohere",
+      "auth_type": "bearer_token",
+      "auth_header": "Authorization: Bearer {api_key}"
+    },
+    "alibaba": {
+      "name": "阿里云",
+      "region": "china",
+      "currency": "CNY",
+      "base_urls": ["https://dashscope.aliyuncs.com/compatible-mode/v1", "https://dashscope.aliyuncs.com/api/v1"],
+      "api_compatibility": "openai",
+      "auth_type": "bearer_token",
+      "auth_header": "Authorization: Bearer {api_key}",
+      "note": "百炼平台，compatible-mode端点兼容OpenAI格式"
+    },
+    "zhipu": {
+      "name": "智谱AI",
+      "region": "china",
+      "currency": "CNY",
+      "base_urls": ["https://open.bigmodel.cn/api/paas/v4"],
+      "api_compatibility": "openai",
+      "auth_type": "bearer_token",
+      "auth_header": "Authorization: Bearer {api_key}",
+      "note": "智谱开放平台，兼容OpenAI格式"
+    },
+    "minimax": {
+      "name": "MiniMax",
+      "region": "china",
+      "currency": "CNY",
+      "base_urls": ["https://api.minimax.chat/v1"],
+      "api_compatibility": "openai",
+      "auth_type": "bearer_token",
+      "auth_header": "Authorization: Bearer {api_key}",
+      "note": "MiniMax开放平台，兼容OpenAI格式"
+    },
+    "deepseek": {
+      "name": "DeepSeek",
+      "region": "china",
+      "currency": "CNY",
+      "base_urls": ["https://api.deepseek.com/v1"],
+      "api_compatibility": "openai",
+      "auth_type": "bearer_token",
+      "auth_header": "Authorization: Bearer {api_key}",
+      "note": "DeepSeek开放平台，兼容OpenAI格式"
+    },
+    "baidu": {
+      "name": "百度",
+      "region": "china",
+      "currency": "CNY",
+      "base_urls": ["https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop"],
+      "api_compatibility": "baidu",
+      "auth_type": "access_token",
+      "auth_header": "access_token={access_token}",
+      "note": "文心一言，需先通过API Key+Secret Key获取access_token"
+    },
+    "moonshot": {
+      "name": "月之暗面",
+      "region": "china",
+      "currency": "CNY",
+      "base_urls": ["https://api.moonshot.cn/v1"],
+      "api_compatibility": "openai",
+      "auth_type": "bearer_token",
+      "auth_header": "Authorization: Bearer {api_key}",
+      "note": "Kimi API，兼容OpenAI格式"
+    },
+    "baichuan": {
+      "name": "百川智能",
+      "region": "china",
+      "currency": "CNY",
+      "base_urls": ["https://api.baichuan-ai.com/v1"],
+      "api_compatibility": "openai",
+      "auth_type": "bearer_token",
+      "auth_header": "Authorization: Bearer {api_key}",
+      "note": "百川API，兼容OpenAI格式"
+    },
+    "spark": {
+      "name": "科大讯飞",
+      "region": "china",
+      "currency": "CNY",
+      "base_urls": ["wss://spark-api.xf-yun.com/v1", "https://spark-api.xf-yun.com/v1"],
+      "api_compatibility": "spark",
+      "auth_type": "spark_auth",
+      "auth_header": "Authorization: Bearer {api_key}:{api_secret}",
+      "note": "讯飞星火，WebSocket协议为主，也支持HTTP"
+    },
+    "sensetime": {
+      "name": "商汤科技",
+      "region": "china",
+      "currency": "CNY",
+      "base_urls": ["https://api.sensenova.cn/v1"],
+      "api_compatibility": "openai",
+      "auth_type": "bearer_token",
+      "auth_header": "Authorization: Bearer {api_key}",
+      "note": "商汤日日新，兼容OpenAI格式"
+    },
+    "stepfun": {
+      "name": "阶跃星辰",
+      "region": "china",
+      "currency": "CNY",
+      "base_urls": ["https://api.stepfun.com/v1"],
+      "api_compatibility": "openai",
+      "auth_type": "bearer_token",
+      "auth_header": "Authorization: Bearer {api_key}",
+      "note": "阶跃星辰，兼容OpenAI格式"
+    },
+    "doubao": {
+      "name": "字节跳动",
+      "region": "china",
+      "currency": "CNY",
+      "base_urls": ["https://ark.cn-beijing.volces.com/api/v3"],
+      "api_compatibility": "openai",
+      "auth_type": "bearer_token",
+      "auth_header": "Authorization: Bearer {api_key}",
+      "note": "火山方舟/豆包，兼容OpenAI格式，需使用接入点ID作为model参数"
+    }
+  },
+
+  "plans": {
+    "openai-token-pack-1m": {
+      "vendor": "openai",
+      "name": "OpenAI Token Pack 1M",
+      "type": "token_pack",
+      "price": 5.0,
+      "currency": "USD",
+      "included_tokens": 1000000,
+      "applicable_models": ["gpt-4o-mini", "gpt-3.5-turbo"],
+      "description": "100万Token预付费包，适用于GPT-4o-mini/GPT-3.5"
+    },
+    "openai-token-pack-10m": {
+      "vendor": "openai",
+      "name": "OpenAI Token Pack 10M",
+      "type": "token_pack",
+      "price": 40.0,
+      "currency": "USD",
+      "included_tokens": 10000000,
+      "applicable_models": ["gpt-4o-mini", "gpt-3.5-turbo"],
+      "description": "1000万Token预付费包"
+    },
+    "openai-batch-discount": {
+      "vendor": "openai",
+      "name": "OpenAI Batch API",
+      "type": "discount_plan",
+      "discount_rate": 0.5,
+      "currency": "USD",
+      "applicable_models": ["gpt-4o", "gpt-4-turbo", "gpt-4", "gpt-4o-mini"],
+      "description": "Batch API半价优惠，24h内返回结果"
+    },
+    "anthropic-batch-discount": {
+      "vendor": "anthropic",
+      "name": "Claude Batch API",
+      "type": "discount_plan",
+      "discount_rate": 0.5,
+      "currency": "USD",
+      "applicable_models": ["claude-3.5-sonnet", "claude-3-haiku"],
+      "description": "Claude Message Batches API半价优惠"
+    },
+    "google-gemini-free-tier": {
+      "vendor": "google",
+      "name": "Gemini Free Tier",
+      "type": "free_tier",
+      "currency": "USD",
+      "included_tokens": 3200000,
+      "applicable_models": ["gemini-1.5-pro"],
+      "description": "Gemini 1.5 Pro免费层，每分钟2次请求"
+    },
+    "cohere-free-tier": {
+      "vendor": "cohere",
+      "name": "Cohere Free Tier",
+      "type": "free_tier",
+      "currency": "USD",
+      "included_tokens": 1000000,
+      "applicable_models": ["command-r"],
+      "description": "Cohere免费层，每月100万Token"
+    },
+    "alibaba-token-plan-standard": {
+      "vendor": "alibaba",
+      "name": "百炼Token Plan 标准坐席",
+      "type": "token_plan",
+      "price": 198.0,
+      "currency": "CNY",
+      "included_tokens": 0,
+      "applicable_models": ["qwen-turbo", "qwen-plus", "qwen-max", "qwen-long", "glm-4-flash", "deepseek-chat"],
+      "billing_unit": "credits",
+      "credits_per_month": 25000,
+      "description": "百炼Token Plan团队版标准坐席，25000 Credits/月，轻度使用AI辅助的团队成员"
+    },
+    "alibaba-token-plan-advanced": {
+      "vendor": "alibaba",
+      "name": "百炼Token Plan 高级坐席",
+      "type": "token_plan",
+      "price": 698.0,
+      "currency": "CNY",
+      "included_tokens": 0,
+      "applicable_models": ["qwen-turbo", "qwen-plus", "qwen-max", "qwen-long", "glm-4-flash", "deepseek-chat"],
+      "billing_unit": "credits",
+      "credits_per_month": 100000,
+      "description": "百炼Token Plan团队版高级坐席，100000 Credits/月，日常高频使用AI编码的团队成员"
+    },
+    "alibaba-token-plan-premium": {
+      "vendor": "alibaba",
+      "name": "百炼Token Plan 尊享坐席",
+      "type": "token_plan",
+      "price": 1398.0,
+      "currency": "CNY",
+      "included_tokens": 0,
+      "applicable_models": ["qwen-turbo", "qwen-plus", "qwen-max", "qwen-long", "glm-4-flash", "deepseek-chat"],
+      "billing_unit": "credits",
+      "credits_per_month": 250000,
+      "description": "百炼Token Plan团队版尊享坐席，250000 Credits/月，重度依赖AI的核心开发者"
+    },
+    "alibaba-token-plan-shared": {
+      "vendor": "alibaba",
+      "name": "百炼Token Plan 共享用量包",
+      "type": "token_plan",
+      "price": 5000.0,
+      "currency": "CNY",
+      "included_tokens": 0,
+      "applicable_models": ["qwen-turbo", "qwen-plus", "qwen-max", "qwen-long", "glm-4-flash", "deepseek-chat"],
+      "billing_unit": "credits",
+      "credits_per_month": 625000,
+      "description": "百炼Token Plan团队版共享用量包，625000 Credits，供团队统一使用"
+    },
+    "alibaba-coding-plan-pro": {
+      "vendor": "alibaba",
+      "name": "百炼Coding Plan Pro",
+      "type": "coding_plan",
+      "price": 200.0,
+      "currency": "CNY",
+      "included_tokens": 0,
+      "applicable_models": ["qwen-turbo", "qwen-plus", "glm-4-flash", "deepseek-chat"],
+      "billing_unit": "calls",
+      "calls_per_month": 90000,
+      "description": "百炼Coding Plan Pro版，9万次调用/月，支持多模型切换（千问/GLM/Kimi等），首月39.9元"
+    },
+    "alibaba-qwen-free-tier": {
+      "vendor": "alibaba",
+      "name": "百炼新用户免费额度",
+      "type": "free_tier",
+      "currency": "CNY",
+      "included_tokens": 1000000,
+      "applicable_models": ["qwen-turbo", "qwen-max"],
+      "description": "百炼开通后90天内，各100万Token免费额度"
+    },
+    "alibaba-batch-discount": {
+      "vendor": "alibaba",
+      "name": "百炼Batch API半价",
+      "type": "discount_plan",
+      "discount_rate": 0.5,
+      "currency": "CNY",
+      "applicable_models": ["qwen-max", "qwen-plus", "qwen-turbo"],
+      "description": "百炼Batch API半价优惠，支持qwen-max/qwen3-max等模型"
+    },
+    "zhipu-coding-plan-lite": {
+      "vendor": "zhipu",
+      "name": "GLM Coding Plan Lite",
+      "type": "coding_plan",
+      "price": 49.0,
+      "currency": "CNY",
+      "included_tokens": 0,
+      "applicable_models": ["glm-4-flash", "glm-4-air", "glm-4-plus"],
+      "billing_unit": "prompts_per_5h",
+      "prompts_per_5h": 80,
+      "description": "GLM Coding Plan Lite，80次prompt/5小时，Claude Pro 3倍用量，适合轻量级工作负载"
+    },
+    "zhipu-coding-plan-pro": {
+      "vendor": "zhipu",
+      "name": "GLM Coding Plan Pro",
+      "type": "coding_plan",
+      "price": 149.0,
+      "currency": "CNY",
+      "included_tokens": 0,
+      "applicable_models": ["glm-4-flash", "glm-4-air", "glm-4-plus", "glm-4"],
+      "billing_unit": "prompts_per_5h",
+      "prompts_per_5h": 400,
+      "description": "GLM Coding Plan Pro，400次prompt/5小时，Lite的5倍用量，支持视觉理解/联网搜索MCP，最受欢迎"
+    },
+    "zhipu-coding-plan-max": {
+      "vendor": "zhipu",
+      "name": "GLM Coding Plan Max",
+      "type": "coding_plan",
+      "price": 469.0,
+      "currency": "CNY",
+      "included_tokens": 0,
+      "applicable_models": ["glm-4-flash", "glm-4-air", "glm-4-plus", "glm-4"],
+      "billing_unit": "prompts_per_5h",
+      "prompts_per_5h": 1600,
+      "description": "GLM Coding Plan Max，1600次prompt/5小时，Pro的4倍用量，高并发优先保障，量大管饱"
+    },
+    "zhipu-glm-free-tier": {
+      "vendor": "zhipu",
+      "name": "智谱GLM免费额度",
+      "type": "free_tier",
+      "currency": "CNY",
+      "included_tokens": 500000,
+      "applicable_models": ["glm-4-flash"],
+      "description": "新用户50万Token免费额度，GLM-4.7-Flash完全免费"
+    },
+    "zhipu-batch-discount": {
+      "vendor": "zhipu",
+      "name": "智谱Batch API半价",
+      "type": "discount_plan",
+      "discount_rate": 0.5,
+      "currency": "CNY",
+      "applicable_models": ["glm-4-plus", "glm-4-air"],
+      "description": "智谱Batch API半价优惠"
+    },
+    "minimax-token-plan-starter": {
+      "vendor": "minimax",
+      "name": "MiniMax Token Plan Starter",
+      "type": "token_plan",
+      "price": 29.0,
+      "currency": "CNY",
+      "included_tokens": 0,
+      "applicable_models": ["minimax-abab6.5s", "minimax-abab6.5g", "minimax-abab6.5t"],
+      "billing_unit": "requests_per_5h",
+      "requests_per_5h": 600,
+      "description": "MiniMax Token Plan Starter，600次请求/5小时，入门级开发场景"
+    },
+    "minimax-token-plan-plus": {
+      "vendor": "minimax",
+      "name": "MiniMax Token Plan Plus",
+      "type": "token_plan",
+      "price": 49.0,
+      "currency": "CNY",
+      "included_tokens": 0,
+      "applicable_models": ["minimax-abab6.5s", "minimax-abab6.5g", "minimax-abab6.5t"],
+      "billing_unit": "requests_per_5h",
+      "requests_per_5h": 1500,
+      "description": "MiniMax Token Plan Plus，1500次请求/5小时，日常编程与内容创作，高性价比"
+    },
+    "minimax-token-plan-max": {
+      "vendor": "minimax",
+      "name": "MiniMax Token Plan Max",
+      "type": "token_plan",
+      "price": 119.0,
+      "currency": "CNY",
+      "included_tokens": 0,
+      "applicable_models": ["minimax-abab6.5s", "minimax-abab6.5g", "minimax-abab6.5t"],
+      "billing_unit": "requests_per_5h",
+      "requests_per_5h": 4500,
+      "description": "MiniMax Token Plan Max，4500次请求/5小时，高频用户，超大份量"
+    },
+    "minimax-token-plan-plus-speed": {
+      "vendor": "minimax",
+      "name": "MiniMax Token Plan Plus 极速版",
+      "type": "token_plan",
+      "price": 98.0,
+      "currency": "CNY",
+      "included_tokens": 0,
+      "applicable_models": ["minimax-abab6.5s", "minimax-abab6.5g", "minimax-abab6.5t"],
+      "billing_unit": "requests_per_5h",
+      "requests_per_5h": 1500,
+      "description": "MiniMax Token Plan Plus极速版，1500次请求/5小时，约100TPS极速推理，同类3倍速度"
+    },
+    "minimax-token-plan-max-speed": {
+      "vendor": "minimax",
+      "name": "MiniMax Token Plan Max 极速版",
+      "type": "token_plan",
+      "price": 199.0,
+      "currency": "CNY",
+      "included_tokens": 0,
+      "applicable_models": ["minimax-abab6.5s", "minimax-abab6.5g", "minimax-abab6.5t"],
+      "billing_unit": "requests_per_5h",
+      "requests_per_5h": 4500,
+      "description": "MiniMax Token Plan Max极速版，4500次请求/5小时，约100TPS极速推理，超值之选"
+    },
+    "minimax-token-plan-ultra-speed": {
+      "vendor": "minimax",
+      "name": "MiniMax Token Plan Ultra 极速版",
+      "type": "token_plan",
+      "price": 899.0,
+      "currency": "CNY",
+      "included_tokens": 0,
+      "applicable_models": ["minimax-abab6.5s", "minimax-abab6.5g", "minimax-abab6.5t"],
+      "billing_unit": "requests_per_5h",
+      "requests_per_5h": 30000,
+      "description": "MiniMax Token Plan Ultra极速版，30000次请求/5小时，生产级工作负载，极速畅用"
+    },
+    "minimax-coding-plan-starter": {
+      "vendor": "minimax",
+      "name": "MiniMax Coding Plan Starter",
+      "type": "coding_plan",
+      "price": 29.0,
+      "currency": "CNY",
+      "included_tokens": 0,
+      "applicable_models": ["minimax-abab6.5s", "minimax-abab6.5g"],
+      "billing_unit": "prompts_per_5h",
+      "prompts_per_5h": 100,
+      "description": "MiniMax Coding Plan Starter，100次prompt/5小时，轻量编程辅助"
+    },
+    "minimax-coding-plan-plus": {
+      "vendor": "minimax",
+      "name": "MiniMax Coding Plan Plus",
+      "type": "coding_plan",
+      "price": 49.0,
+      "currency": "CNY",
+      "included_tokens": 0,
+      "applicable_models": ["minimax-abab6.5s", "minimax-abab6.5g"],
+      "billing_unit": "prompts_per_5h",
+      "prompts_per_5h": 300,
+      "description": "MiniMax Coding Plan Plus，300次prompt/5小时，日常开发工作"
+    },
+    "minimax-coding-plan-max": {
+      "vendor": "minimax",
+      "name": "MiniMax Coding Plan Max",
+      "type": "coding_plan",
+      "price": 119.0,
+      "currency": "CNY",
+      "included_tokens": 0,
+      "applicable_models": ["minimax-abab6.5s", "minimax-abab6.5g"],
+      "billing_unit": "prompts_per_5h",
+      "prompts_per_5h": 1000,
+      "description": "MiniMax Coding Plan Max，1000次prompt/5小时，高强度编程"
+    },
+    "deepseek-coding-plan": {
+      "vendor": "deepseek",
+      "name": "DeepSeek Coding Plan",
+      "type": "coding_plan",
+      "price": 0.0,
+      "currency": "CNY",
+      "included_tokens": 500000,
+      "applicable_models": ["deepseek-coder"],
+      "description": "DeepSeek Coder免费编程套餐，每月50万Token"
+    },
+    "deepseek-chat-plan": {
+      "vendor": "deepseek",
+      "name": "DeepSeek Chat Plan",
+      "type": "token_pack",
+      "price": 1.0,
+      "currency": "CNY",
+      "included_tokens": 2000000,
+      "applicable_models": ["deepseek-chat"],
+      "description": "200万Token资源包"
+    },
+    "moonshot-coding-plan": {
+      "vendor": "moonshot",
+      "name": "Kimi For Coding",
+      "type": "coding_plan",
+      "price": 49.0,
+      "currency": "CNY",
+      "included_tokens": 0,
+      "applicable_models": ["moonshot-v1-8k", "moonshot-v1-32k", "moonshot-v1-128k"],
+      "billing_unit": "requests_per_5h",
+      "requests_per_5h": 500,
+      "description": "Kimi For Coding包月套餐，基于K2旗舰模型，每5小时100-500次请求，最高100 Tokens/s"
+    },
+    "moonshot-member-andante": {
+      "vendor": "moonshot",
+      "name": "Kimi会员 Andante",
+      "type": "token_plan",
+      "price": 49.0,
+      "currency": "CNY",
+      "included_tokens": 0,
+      "applicable_models": ["moonshot-v1-8k", "moonshot-v1-32k"],
+      "description": "Kimi会员Andante档，49元/月，含适量使用次数及API兑换券"
+    },
+    "moonshot-member-moderato": {
+      "vendor": "moonshot",
+      "name": "Kimi会员 Moderato",
+      "type": "token_plan",
+      "price": 99.0,
+      "currency": "CNY",
+      "included_tokens": 0,
+      "applicable_models": ["moonshot-v1-8k", "moonshot-v1-32k", "moonshot-v1-128k"],
+      "description": "Kimi会员Moderato档，99元/月，更多次数和并发功能"
+    },
+    "baidu-ernie-free-tier": {
+      "vendor": "baidu",
+      "name": "文心一言免费额度",
+      "type": "free_tier",
+      "currency": "CNY",
+      "included_tokens": 1000000,
+      "applicable_models": ["ernie-3.5", "ernie-4.0"],
+      "description": "个人认证每月100万Token免费额度，企业认证额外200万Token/月"
+    },
+    "baidu-ernie-resource-pack-100k": {
+      "vendor": "baidu",
+      "name": "文心一言资源包10万Token",
+      "type": "token_pack",
+      "price": 4.8,
+      "currency": "CNY",
+      "included_tokens": 100000,
+      "applicable_models": ["ernie-4.0", "ernie-3.5"],
+      "description": "10万Token资源包，8折优惠"
+    },
+    "baidu-ernie-resource-pack-500k": {
+      "vendor": "baidu",
+      "name": "文心一言资源包50万Token",
+      "type": "token_pack",
+      "price": 21.25,
+      "currency": "CNY",
+      "included_tokens": 500000,
+      "applicable_models": ["ernie-4.0", "ernie-3.5"],
+      "description": "50万Token资源包，85折优惠"
+    },
+    "baidu-ernie-resource-pack-1m": {
+      "vendor": "baidu",
+      "name": "文心一言资源包100万Token",
+      "type": "token_pack",
+      "price": 36.0,
+      "currency": "CNY",
+      "included_tokens": 1000000,
+      "applicable_models": ["ernie-4.0", "ernie-3.5"],
+      "description": "100万Token资源包，9折优惠"
+    },
+    "doubao-subscription-standard": {
+      "vendor": "doubao",
+      "name": "豆包订阅 标准版",
+      "type": "token_plan",
+      "price": 68.0,
+      "currency": "CNY",
+      "included_tokens": 0,
+      "applicable_models": ["doubao-pro-4k", "doubao-pro-32k", "doubao-pro-128k"],
+      "description": "豆包标准版连续包月68元，年付688元，基础增值服务"
+    },
+    "doubao-subscription-enhanced": {
+      "vendor": "doubao",
+      "name": "豆包订阅 加强版",
+      "type": "token_plan",
+      "price": 200.0,
+      "currency": "CNY",
+      "included_tokens": 0,
+      "applicable_models": ["doubao-pro-4k", "doubao-pro-32k", "doubao-pro-128k"],
+      "description": "豆包加强版连续包月200元，年付2048元，更多额度与优先级"
+    },
+    "doubao-subscription-pro": {
+      "vendor": "doubao",
+      "name": "豆包订阅 专业版",
+      "type": "token_plan",
+      "price": 500.0,
+      "currency": "CNY",
+      "included_tokens": 0,
+      "applicable_models": ["doubao-pro-4k", "doubao-pro-32k", "doubao-pro-128k"],
+      "description": "豆包专业版连续包月500元，年付5088元，最高优先级与完整功能"
+    },
+    "doubao-free-tier": {
+      "vendor": "doubao",
+      "name": "豆包免费额度",
+      "type": "free_tier",
+      "currency": "CNY",
+      "included_tokens": 5000000,
+      "applicable_models": ["doubao-pro-4k"],
+      "description": "豆包API免费额度，输入0.8元/百万Token起"
+    },
+    "spark-free-tier": {
+      "vendor": "spark",
+      "name": "讯飞星火免费额度",
+      "type": "free_tier",
+      "currency": "CNY",
+      "included_tokens": 2000000,
+      "applicable_models": ["spark-lite"],
+      "description": "讯飞星火Lite免费使用"
+    },
+    "volcengine-coding-plan": {
+      "vendor": "doubao",
+      "name": "火山方舟 Coding Plan",
+      "type": "coding_plan",
+      "price": 40.0,
+      "currency": "CNY",
+      "included_tokens": 0,
+      "applicable_models": ["doubao-pro-4k", "doubao-pro-32k", "deepseek-chat", "glm-4-flash"],
+      "billing_unit": "prompts_per_5h",
+      "prompts_per_5h": 200,
+      "description": "火山方舟Coding Plan，40元/月起，支持豆包/DeepSeek/Kimi/GLM多模型切换，兼容Anthropic协议"
+    }
+  },
+
+  "models": {
+    "gpt-4": {
+      "vendor": "openai",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 8192,
+      "cost_per_input_token": 0.00003,
+      "cost_per_output_token": 0.00006,
+      "cost_currency": "USD"
+    },
+    "gpt-4-turbo": {
+      "vendor": "openai",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 128000,
+      "cost_per_input_token": 0.00001,
+      "cost_per_output_token": 0.00003,
+      "cost_currency": "USD"
+    },
+    "gpt-4o": {
+      "vendor": "openai",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "o200k_base"},
+      "max_tokens": 128000,
+      "cost_per_input_token": 0.000005,
+      "cost_per_output_token": 0.000015,
+      "cost_currency": "USD"
+    },
+    "gpt-4o-mini": {
+      "vendor": "openai",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "o200k_base"},
+      "max_tokens": 128000,
+      "cost_per_input_token": 0.00000015,
+      "cost_per_output_token": 0.0000006,
+      "cost_currency": "USD"
+    },
+    "gpt-3.5-turbo": {
+      "vendor": "openai",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 16385,
+      "cost_per_input_token": 0.0000005,
+      "cost_per_output_token": 0.0000015,
+      "cost_currency": "USD"
+    },
+    "o1-preview": {
+      "vendor": "openai",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "o200k_base"},
+      "max_tokens": 128000,
+      "cost_per_input_token": 0.000015,
+      "cost_per_output_token": 0.00006,
+      "cost_currency": "USD"
+    },
+    "o1-mini": {
+      "vendor": "openai",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "o200k_base"},
+      "max_tokens": 128000,
+      "cost_per_input_token": 0.000003,
+      "cost_per_output_token": 0.000012,
+      "cost_currency": "USD"
+    },
+    "claude-3-opus": {
+      "vendor": "anthropic",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 200000,
+      "cost_per_input_token": 0.000015,
+      "cost_per_output_token": 0.000075,
+      "cost_currency": "USD",
+      "note": "Uses cl100k_base as approximation"
+    },
+    "claude-3-sonnet": {
+      "vendor": "anthropic",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 200000,
+      "cost_per_input_token": 0.000003,
+      "cost_per_output_token": 0.000015,
+      "cost_currency": "USD",
+      "note": "Uses cl100k_base as approximation"
+    },
+    "claude-3-haiku": {
+      "vendor": "anthropic",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 200000,
+      "cost_per_input_token": 0.00000025,
+      "cost_per_output_token": 0.00000125,
+      "cost_currency": "USD",
+      "note": "Uses cl100k_base as approximation"
+    },
+    "claude-3.5-sonnet": {
+      "vendor": "anthropic",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 200000,
+      "cost_per_input_token": 0.000003,
+      "cost_per_output_token": 0.000015,
+      "cost_currency": "USD",
+      "note": "Uses cl100k_base as approximation"
+    },
+    "claude-3.5-haiku": {
+      "vendor": "anthropic",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 200000,
+      "cost_per_input_token": 0.0000008,
+      "cost_per_output_token": 0.000004,
+      "cost_currency": "USD",
+      "note": "Uses cl100k_base as approximation"
+    },
+    "gemini-pro": {
+      "vendor": "google",
+      "tokenizer_type": "estimator",
+      "tokenizer_config": {"chars_per_token_en": 4.0, "chars_per_token_zh": 1.5},
+      "max_tokens": 32768,
+      "cost_per_input_token": 0.00000025,
+      "cost_per_output_token": 0.0000005,
+      "cost_currency": "USD",
+      "note": "No public tokenizer; uses character-based estimation"
+    },
+    "gemini-1.5-pro": {
+      "vendor": "google",
+      "tokenizer_type": "estimator",
+      "tokenizer_config": {"chars_per_token_en": 4.0, "chars_per_token_zh": 1.5},
+      "max_tokens": 2097152,
+      "cost_per_input_token": 0.0000035,
+      "cost_per_output_token": 0.0000105,
+      "cost_currency": "USD",
+      "note": "No public tokenizer; uses character-based estimation"
+    },
+    "gemini-1.5-flash": {
+      "vendor": "google",
+      "tokenizer_type": "estimator",
+      "tokenizer_config": {"chars_per_token_en": 4.0, "chars_per_token_zh": 1.5},
+      "max_tokens": 1048576,
+      "cost_per_input_token": 0.00000035,
+      "cost_per_output_token": 0.00000105,
+      "cost_currency": "USD",
+      "note": "No public tokenizer; uses character-based estimation"
+    },
+    "llama-3-8b": {
+      "vendor": "meta",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 8192,
+      "note": "LLaMA-3 uses a BPE tokenizer; cl100k_base provides reasonable approximation"
+    },
+    "llama-3-70b": {
+      "vendor": "meta",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 8192,
+      "note": "LLaMA-3 uses a BPE tokenizer; cl100k_base provides reasonable approximation"
+    },
+    "llama-3.1-405b": {
+      "vendor": "meta",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 128000,
+      "note": "LLaMA-3.1 uses a BPE tokenizer; cl100k_base provides reasonable approximation"
+    },
+    "mistral-large": {
+      "vendor": "mistral",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 128000,
+      "cost_per_input_token": 0.000004,
+      "cost_per_output_token": 0.000012,
+      "cost_currency": "USD",
+      "note": "Mistral tokenizer approximation"
+    },
+    "mistral-medium": {
+      "vendor": "mistral",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 32768,
+      "cost_per_input_token": 0.0000027,
+      "cost_per_output_token": 0.0000081,
+      "cost_currency": "USD",
+      "note": "Mistral tokenizer approximation"
+    },
+    "mistral-small": {
+      "vendor": "mistral",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 32768,
+      "cost_per_input_token": 0.0000002,
+      "cost_per_output_token": 0.0000006,
+      "cost_currency": "USD",
+      "note": "Mistral tokenizer approximation"
+    },
+    "mixtral-8x7b": {
+      "vendor": "mistral",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 32768,
+      "note": "Mixtral tokenizer approximation"
+    },
+    "command-r": {
+      "vendor": "cohere",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 128000,
+      "cost_per_input_token": 0.0000005,
+      "cost_per_output_token": 0.0000015,
+      "cost_currency": "USD",
+      "note": "Cohere tokenizer approximation"
+    },
+    "command-r-plus": {
+      "vendor": "cohere",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 128000,
+      "cost_per_input_token": 0.0000025,
+      "cost_per_output_token": 0.00001,
+      "cost_currency": "USD",
+      "note": "Cohere tokenizer approximation"
+    },
+    "qwen-turbo": {
+      "vendor": "alibaba",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 131072,
+      "cost_per_input_token": 0.0000003,
+      "cost_per_output_token": 0.0000006,
+      "cost_currency": "CNY",
+      "note": "Qwen tokenizer approximation; actual may vary for Chinese text"
+    },
+    "qwen-plus": {
+      "vendor": "alibaba",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 131072,
+      "cost_per_input_token": 0.0000008,
+      "cost_per_output_token": 0.000002,
+      "cost_currency": "CNY",
+      "note": "Qwen tokenizer approximation"
+    },
+    "qwen-max": {
+      "vendor": "alibaba",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 32768,
+      "cost_per_input_token": 0.00002,
+      "cost_per_output_token": 0.00006,
+      "cost_currency": "CNY",
+      "note": "Qwen tokenizer approximation"
+    },
+    "qwen-long": {
+      "vendor": "alibaba",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 10000000,
+      "cost_per_input_token": 0.0000005,
+      "cost_per_output_token": 0.000002,
+      "cost_currency": "CNY",
+      "note": "Qwen-Long超长上下文模型"
+    },
+    "glm-4": {
+      "vendor": "zhipu",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 128000,
+      "cost_per_input_token": 0.0001,
+      "cost_per_output_token": 0.0001,
+      "cost_currency": "CNY",
+      "note": "GLM-4 tokenizer approximation"
+    },
+    "glm-4-air": {
+      "vendor": "zhipu",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 128000,
+      "cost_per_input_token": 0.000001,
+      "cost_per_output_token": 0.000001,
+      "cost_currency": "CNY",
+      "note": "GLM-4-Air高性价比版本"
+    },
+    "glm-4-flash": {
+      "vendor": "zhipu",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 128000,
+      "cost_per_input_token": 0.0000001,
+      "cost_per_output_token": 0.0000001,
+      "cost_currency": "CNY",
+      "note": "GLM-4-Flash免费/超低价版本"
+    },
+    "glm-4-plus": {
+      "vendor": "zhipu",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 128000,
+      "cost_per_input_token": 0.00005,
+      "cost_per_output_token": 0.00005,
+      "cost_currency": "CNY",
+      "note": "GLM-4-Plus增强版本"
+    },
+    "glm-4-long": {
+      "vendor": "zhipu",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 1048576,
+      "cost_per_input_token": 0.000001,
+      "cost_per_output_token": 0.000001,
+      "cost_currency": "CNY",
+      "note": "GLM-4-Long超长上下文模型"
+    },
+    "glm-4v": {
+      "vendor": "zhipu",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 4096,
+      "cost_per_input_token": 0.0001,
+      "cost_per_output_token": 0.0001,
+      "cost_currency": "CNY",
+      "note": "GLM-4V多模态模型"
+    },
+    "minimax-abab6.5s": {
+      "vendor": "minimax",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 245760,
+      "cost_per_input_token": 0.000001,
+      "cost_per_output_token": 0.000001,
+      "cost_currency": "CNY",
+      "note": "MiniMax ABAB 6.5s 高性价比模型"
+    },
+    "minimax-abab6.5g": {
+      "vendor": "minimax",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 131072,
+      "cost_per_input_token": 0.00001,
+      "cost_per_output_token": 0.00001,
+      "cost_currency": "CNY",
+      "note": "MiniMax ABAB 6.5g 旗舰模型"
+    },
+    "minimax-abab6.5t": {
+      "vendor": "minimax",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 245760,
+      "cost_per_input_token": 0.000005,
+      "cost_per_output_token": 0.000005,
+      "cost_currency": "CNY",
+      "note": "MiniMax ABAB 6.5t 中等模型"
+    },
+    "minimax-abab5.5": {
+      "vendor": "minimax",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 16384,
+      "cost_per_input_token": 0.000005,
+      "cost_per_output_token": 0.000005,
+      "cost_currency": "CNY",
+      "note": "MiniMax ABAB 5.5 经典模型"
+    },
+    "deepseek-chat": {
+      "vendor": "deepseek",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 128000,
+      "cost_per_input_token": 0.000001,
+      "cost_per_output_token": 0.000002,
+      "cost_currency": "CNY",
+      "note": "DeepSeek tokenizer approximation"
+    },
+    "deepseek-coder": {
+      "vendor": "deepseek",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 128000,
+      "cost_per_input_token": 0.000001,
+      "cost_per_output_token": 0.000002,
+      "cost_currency": "CNY",
+      "note": "DeepSeek Coder专用编程模型"
+    },
+    "deepseek-reasoner": {
+      "vendor": "deepseek",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 128000,
+      "cost_per_input_token": 0.000004,
+      "cost_per_output_token": 0.000016,
+      "cost_currency": "CNY",
+      "note": "DeepSeek R1推理模型"
+    },
+    "ernie-4.0": {
+      "vendor": "baidu",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 8192,
+      "cost_per_input_token": 0.00012,
+      "cost_per_output_token": 0.00012,
+      "cost_currency": "CNY",
+      "note": "文心一言4.0 tokenizer approximation"
+    },
+    "ernie-3.5": {
+      "vendor": "baidu",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 8192,
+      "cost_per_input_token": 0.000012,
+      "cost_per_output_token": 0.000012,
+      "cost_currency": "CNY",
+      "note": "文心一言3.5 tokenizer approximation"
+    },
+    "ernie-speed": {
+      "vendor": "baidu",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 4096,
+      "cost_per_input_token": 0.000004,
+      "cost_per_output_token": 0.000008,
+      "cost_currency": "CNY",
+      "note": "文心Speed高速模型"
+    },
+    "moonshot-v1-8k": {
+      "vendor": "moonshot",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 8192,
+      "cost_per_input_token": 0.000012,
+      "cost_per_output_token": 0.000012,
+      "cost_currency": "CNY",
+      "note": "Kimi tokenizer approximation"
+    },
+    "moonshot-v1-32k": {
+      "vendor": "moonshot",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 32768,
+      "cost_per_input_token": 0.000024,
+      "cost_per_output_token": 0.000024,
+      "cost_currency": "CNY",
+      "note": "Kimi 32K上下文版本"
+    },
+    "moonshot-v1-128k": {
+      "vendor": "moonshot",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 131072,
+      "cost_per_input_token": 0.00006,
+      "cost_per_output_token": 0.00006,
+      "cost_currency": "CNY",
+      "note": "Kimi 128K超长上下文版本"
+    },
+    "baichuan2-53b": {
+      "vendor": "baichuan",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 32768,
+      "cost_per_input_token": 0.000004,
+      "cost_per_output_token": 0.000008,
+      "cost_currency": "CNY",
+      "note": "百川2-53B tokenizer approximation"
+    },
+    "spark-lite": {
+      "vendor": "spark",
+      "tokenizer_type": "estimator",
+      "tokenizer_config": {"chars_per_token_en": 4.0, "chars_per_token_zh": 1.5},
+      "max_tokens": 4096,
+      "cost_per_input_token": 0.0,
+      "cost_per_output_token": 0.0,
+      "cost_currency": "CNY",
+      "note": "讯飞星火Lite免费模型"
+    },
+    "spark-pro": {
+      "vendor": "spark",
+      "tokenizer_type": "estimator",
+      "tokenizer_config": {"chars_per_token_en": 4.0, "chars_per_token_zh": 1.5},
+      "max_tokens": 8192,
+      "cost_per_input_token": 0.000004,
+      "cost_per_output_token": 0.000004,
+      "cost_currency": "CNY",
+      "note": "讯飞星火Pro"
+    },
+    "spark-max": {
+      "vendor": "spark",
+      "tokenizer_type": "estimator",
+      "tokenizer_config": {"chars_per_token_en": 4.0, "chars_per_token_zh": 1.5},
+      "max_tokens": 32768,
+      "cost_per_input_token": 0.00004,
+      "cost_per_output_token": 0.00004,
+      "cost_currency": "CNY",
+      "note": "讯飞星火Max旗舰模型"
+    },
+    "sensechat-5": {
+      "vendor": "sensetime",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 32768,
+      "cost_per_input_token": 0.000004,
+      "cost_per_output_token": 0.000008,
+      "cost_currency": "CNY",
+      "note": "商汤日日新SenseChat-5"
+    },
+    "step-1-8k": {
+      "vendor": "stepfun",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 8192,
+      "cost_per_input_token": 0.000005,
+      "cost_per_output_token": 0.00002,
+      "cost_currency": "CNY",
+      "note": "阶跃星辰Step-1"
+    },
+    "step-1-200k": {
+      "vendor": "stepfun",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 204800,
+      "cost_per_input_token": 0.000016,
+      "cost_per_output_token": 0.00006,
+      "cost_currency": "CNY",
+      "note": "阶跃星辰Step-1-200K超长上下文"
+    },
+    "doubao-pro-4k": {
+      "vendor": "doubao",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 4096,
+      "cost_per_input_token": 0.0000005,
+      "cost_per_output_token": 0.0000009,
+      "cost_currency": "CNY",
+      "note": "豆包Pro-4K超低价模型"
+    },
+    "doubao-pro-32k": {
+      "vendor": "doubao",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 32768,
+      "cost_per_input_token": 0.0000005,
+      "cost_per_output_token": 0.0000009,
+      "cost_currency": "CNY",
+      "note": "豆包Pro-32K"
+    },
+    "doubao-pro-128k": {
+      "vendor": "doubao",
+      "tokenizer_type": "tiktoken",
+      "tokenizer_config": {"encoding_name": "cl100k_base"},
+      "max_tokens": 131072,
+      "cost_per_input_token": 0.000005,
+      "cost_per_output_token": 0.000009,
+      "cost_currency": "CNY",
+      "note": "豆包Pro-128K超长上下文"
+    }
+  }
+}
