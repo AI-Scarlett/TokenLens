@@ -386,7 +386,7 @@ class TokenCounter:
     ) -> List[Dict[str, Any]]:
         conn = _get_db()
 
-        valid_groups = {"model", "api", "date", "model_api", "vendor", "agent"}
+        valid_groups = {"model", "api", "date", "model_api", "model_agent", "vendor", "agent"}
         if group_by not in valid_groups:
             group_by = "model"
 
@@ -394,6 +394,8 @@ class TokenCounter:
             group_expr = "model"
         elif group_by == "agent":
             group_expr = "CASE WHEN agent = '' THEN '(未指定)' ELSE agent END"
+        elif group_by == "model_agent":
+            group_expr = "model || '||' || CASE WHEN agent = '' THEN '(未指定)' ELSE agent END"
         else:
             group_expr = {
                 "model": "model",
@@ -447,6 +449,10 @@ class TokenCounter:
                 model_name = row["group_key"]
                 vendor = models.get(model_name, {}).get("vendor", "unknown")
                 entry["vendor"] = vendor
+            elif group_by == "model_agent":
+                parts = row["group_key"].split("||", 1)
+                entry["model"] = parts[0] if len(parts) > 0 else ""
+                entry["agent"] = parts[1] if len(parts) > 1 else ""
             results.append(entry)
 
         if group_by == "vendor":

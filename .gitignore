@@ -27,3 +27,5 @@ custom_scanners.json
 *.swo
 *~
 .trae/
+_*.py
+*.tokenlens_backup

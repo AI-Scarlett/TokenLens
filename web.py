@@ -1,11 +1,23 @@
 import json
+import logging
 import os
+import threading
 from flask import Flask, jsonify, request, send_from_directory
 from token_counter import TokenCounter
 from agent_scanner import scan_agents, scan_available_models, add_custom_scanner, remove_custom_scanner, list_custom_scanners
+from usage_monitor import (
+    scan_trae_log_history, import_trae_log_history,
+    get_monitor_status, start_monitor, stop_monitor,
+)
+from agent_config import configure_all_agents, unconfigure_all_agents, detect_all_agents, configure_agent_by_name, unconfigure_agent_by_name
 
 app = Flask(__name__, static_folder="static", static_url_path="/static")
 counter = TokenCounter()
+logger = logging.getLogger(__name__)
+
+_gateway_thread = None
+_gateway_status = {"running": False, "port": 0, "host": "", "message": ""}
+_monitor_thread = None
 
 
 @app.route("/")
@@ -308,6 +320,171 @@ def api_agents_import():
         "imported_models": imported_models,
         "skipped_existing": skipped,
     })
+
+
+@app.route("/api/agents/detect", methods=["GET"])
+def api_agents_detect():
+    try:
+        agents = detect_all_agents()
+        return jsonify(agents)
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+
+@app.route("/api/agents/configure", methods=["POST"])
+def api_agents_configure():
+    data = request.get_json() or {}
+    agent_name = data.get("agent", "")
+    gateway_host = data.get("host", "127.0.0.1")
+    gateway_port = data.get("port", 8899)
+
+    if not agent_name:
+        return jsonify({"success": False, "message": "缺少 agent 参数"})
+
+    try:
+        result = configure_agent_by_name(agent_name, gateway_host, gateway_port)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"agent": agent_name, "success": False, "message": str(e)})
+
+
+@app.route("/api/agents/unconfigure", methods=["POST"])
+def api_agents_unconfigure():
+    data = request.get_json() or {}
+    agent_name = data.get("agent", "")
+
+    if not agent_name:
+        return jsonify({"success": False, "message": "缺少 agent 参数"})
+
+    try:
+        result = unconfigure_agent_by_name(agent_name)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"agent": agent_name, "success": False, "message": str(e)})
+
+
+@app.route("/api/gateway/status", methods=["GET"])
+def api_gateway_status():
+    return jsonify(_gateway_status)
+
+
+@app.route("/api/gateway/start", methods=["POST"])
+def api_gateway_start():
+    global _gateway_thread, _gateway_status
+    if _gateway_status["running"]:
+        return jsonify({"success": False, "message": "Gateway already running"})
+
+    data = request.get_json() or {}
+    port = data.get("port", 8899)
+    host = data.get("host", "127.0.0.1")
+    auto_config = data.get("auto_config", True)
+
+    if auto_config:
+        config_results = configure_all_agents(host, port)
+        logger.info(f"Agent config results: {config_results}")
+
+    def run_gateway_async():
+        global _gateway_status
+        try:
+            from gateway_server import run_gateway, GATEWAY_CONFIG
+            GATEWAY_CONFIG["listen_host"] = host
+            GATEWAY_CONFIG["listen_port"] = port
+            _gateway_status = {"running": True, "port": port, "host": host, "message": "Running"}
+            run_gateway(host=host, port=port)
+        except Exception as e:
+            _gateway_status = {"running": False, "port": 0, "host": "", "message": str(e)}
+
+    _gateway_thread = threading.Thread(target=run_gateway_async, daemon=True)
+    _gateway_thread.start()
+    _gateway_status = {"running": True, "port": port, "host": host, "message": "Starting..."}
+
+    config_msg = ""
+    if auto_config:
+        configured = [r for r in config_results if r.get('success')]
+        agent_names = [r['agent'] for r in configured]
+        config_msg = f"，已自动配置 {len(configured)} 个 Agent（{', '.join(agent_names)}）"
+
+    return jsonify({
+        "success": True,
+        "port": port,
+        "host": host,
+        "message": f"网关已启动{config_msg}，请重启 Agent 使配置生效",
+        "gateway_url": f"http://{host}:{port}",
+        "config_results": config_results if auto_config else [],
+    })
+
+
+@app.route("/api/gateway/stop", methods=["POST"])
+def api_gateway_stop():
+    global _gateway_status
+    unconfigure_all_agents()
+    _gateway_status = {"running": False, "port": 0, "host": "", "message": "Stopped"}
+    return jsonify({"success": True, "message": "Gateway stopped, agent configs restored"})
+
+
+@app.route("/api/monitor/status", methods=["GET"])
+def api_monitor_status():
+    return jsonify(get_monitor_status())
+
+
+@app.route("/api/monitor/start", methods=["POST"])
+def api_monitor_start():
+    global _monitor_thread
+    if get_monitor_status()["running"]:
+        return jsonify({"success": False, "message": "Monitor already running"})
+    _monitor_thread = threading.Thread(target=start_monitor, daemon=True)
+    _monitor_thread.start()
+    return jsonify({"success": True, "message": "Monitor started"})
+
+
+@app.route("/api/monitor/stop", methods=["POST"])
+def api_monitor_stop():
+    stop_monitor()
+    return jsonify({"success": True, "message": "Monitor stopped"})
+
+
+@app.route("/api/usage/trae/scan", methods=["GET"])
+def api_usage_trae_scan():
+    result = scan_trae_log_history()
+    return jsonify(result)
+
+
+@app.route("/api/usage/trae/import", methods=["POST"])
+def api_usage_trae_import():
+    result = import_trae_log_history()
+    return jsonify(result)
+
+
+def _get_proxy_instructions(port, host):
+    return {
+        "trae": {
+            "description": "在 Trae 设置中配置 HTTP 代理",
+            "steps": [
+                f"1. 打开 Trae 设置 (Cmd+,)",
+                f"2. 搜索 'proxy' 或 'HTTP 代理'",
+                f"3. 设置 HTTP 代理为: http://{host}:{port}",
+                f"4. 重启 Trae 使设置生效",
+            ],
+        },
+        "codebuddy": {
+            "description": "在 CodeBuddy 配置中设置 API 代理",
+            "steps": [
+                f"1. 编辑 ~/.codebuddy/models.json",
+                f"2. 将每个模型的 url 中的域名替换为: http://{host}:{port}/原始域名",
+                f"   例如: https://api.minimaxi.com/v1/chat/completions",
+                f"   改为: http://{host}:{port}/api.minimaxi.com/v1/chat/completions",
+                f"3. 重启 CodeBuddy 使设置生效",
+            ],
+        },
+        "environment": {
+            "description": "通过环境变量设置代理（对所有应用生效）",
+            "steps": [
+                f"export HTTP_PROXY=http://{host}:{port}",
+                f"export HTTPS_PROXY=http://{host}:{port}",
+                f"然后启动目标应用",
+            ],
+        },
+    }
 
 
 if __name__ == "__main__":
